@@ -343,3 +343,22 @@ void aes_ ## KEY ## _ofb_decrypt(const uint8_t *key, const uint8_t *iv, size_t l
 AES_DEF_OFB(128, 10)
 AES_DEF_OFB(192, 12)
 AES_DEF_OFB(256, 14)
+
+static inline int _get_round(size_t keylen) {
+    int rr[] = {10, 12, 14};
+    return rr[keylen / 64 - 2];
+}
+
+
+void aes_cipher_gen_key(const uint8_t *key, size_t keylen, uint32_t *rkey, bool decrypt) {
+    (void)decrypt;
+    aes_set_key(key, keylen, _get_round(keylen), rkey);
+}
+
+void aes_cipher_block_encrypt(const uint32_t *rkey, size_t keylen, const uint8_t *plain, uint8_t *cipher) {
+    aes_encrypt(rkey, _get_round(keylen), plain, cipher);
+}
+
+void aes_cipher_block_decrypt(const uint32_t *rkey, size_t keylen, const uint8_t *cipher, uint8_t *plain) {
+    aes_decrypt(rkey, _get_round(keylen), cipher, plain);
+}

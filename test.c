@@ -121,6 +121,46 @@ static void cipher_sm4_test(int mode, const char* name) {
     expect_equal(name, p1, p2, 32);
 }
 
+static void cipher_aes_test(int mode, const char* name) {
+    uint8_t key[32];
+    uint8_t p1[32];
+    uint8_t p2[32];
+    uint8_t c1[32];
+
+    for (int i = 0; i < 32; ++i) {
+        key[i] = (i * i) & 0xff;
+        p1[i] = (i * i * i) & 0xff;
+    }
+
+    memset(p2, 0, 32);
+    memset(c1, 0, 32);
+
+    cipher_ctx_t ctx_en;
+    cipher_ctx_t ctx_de;
+    char namex[32] = "";
+
+    cipher_init(&ctx_en, ALG_AES, 128, key, mode, key, false);
+    cipher_init(&ctx_de, ALG_AES, 128, key, mode, key, true);
+    cipher_operate(&ctx_en, 32, p1, c1);
+    cipher_operate(&ctx_de, 32, c1, p2);
+    sprintf(namex, "128 %s", name);
+    expect_equal(namex, p1, p2, 32);
+
+    cipher_init(&ctx_en, ALG_AES, 192, key, mode, key, false);
+    cipher_init(&ctx_de, ALG_AES, 192, key, mode, key, true);
+    cipher_operate(&ctx_en, 32, p1, c1);
+    cipher_operate(&ctx_de, 32, c1, p2);
+    sprintf(namex, "192 %s", name);
+    expect_equal(namex, p1, p2, 32);
+
+    cipher_init(&ctx_en, ALG_AES, 256, key, mode, key, false);
+    cipher_init(&ctx_de, ALG_AES, 256, key, mode, key, true);
+    cipher_operate(&ctx_en, 32, p1, c1);
+    cipher_operate(&ctx_de, 32, c1, p2);
+    sprintf(namex, "256 %s", name);
+    expect_equal(namex, p1, p2, 32);
+}
+
 int main() {
     sm4_test();
     aes_test();
@@ -129,4 +169,9 @@ int main() {
     cipher_sm4_test(MODE_CBC, "SM4 MODE_CBC");
     cipher_sm4_test(MODE_CFB, "SM4 MODE_CFB");
     cipher_sm4_test(MODE_OFB, "SM4 MODE_OFB");
+
+    cipher_aes_test(MODE_ECB, "AES MODE_ECB");
+    cipher_aes_test(MODE_CBC, "AES MODE_CBC");
+    cipher_aes_test(MODE_CFB, "AES MODE_CFB");
+    cipher_aes_test(MODE_OFB, "AES MODE_OFB");
 }

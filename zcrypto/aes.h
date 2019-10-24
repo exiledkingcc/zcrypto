@@ -33,6 +33,10 @@ AES_FUNC_DEF(192)
 AES_FUNC_DEF(256)
 
 
+void aes_cipher_gen_key(const uint8_t *key, size_t keylen, uint32_t *rkey, bool decrypt);
+void aes_cipher_block_encrypt(const uint32_t *rkey, size_t keylen, const uint8_t *plain, uint8_t *cipher);
+void aes_cipher_block_decrypt(const uint32_t *rkey, size_t keylen, const uint8_t *cipher, uint8_t *plain);
+
 # ifdef __cplusplus
 }
 # endif

@@ -225,13 +225,15 @@ void sm4_ofb_decrypt(const uint8_t key[16], const uint8_t iv[16], size_t len, co
 }
 
 
-void sm4_cipher_gen_key(const uint8_t key[16], uint32_t rkey[32], bool decrypt) {
+void sm4_cipher_gen_key(const uint8_t key[16], size_t keylen, uint32_t rkey[32], bool decrypt) {
+    (void)keylen;
     sm4_calc_key(key, rkey);
     if (decrypt) {
         sm4_rev_key(rkey);
     }
 }
 
-void sm4_cipher_block_encrypt(const uint32_t rkey[32], const uint8_t *plain, uint8_t *cipher) {
+void sm4_cipher_block_encrypt(const uint32_t rkey[32], size_t keylen, const uint8_t *plain, uint8_t *cipher) {
+    (void)keylen;
     sm4_calc_block(rkey, plain, cipher);
 }
