@@ -221,17 +221,7 @@ void sm4_ofb_encrypt(const uint8_t key[16], const uint8_t iv[16], size_t len, co
 }
 
 void sm4_ofb_decrypt(const uint8_t key[16], const uint8_t iv[16], size_t len, const uint8_t *cipher, uint8_t *plain) {
-    uint32_t rkey[32];
-    sm4_calc_key(key, rkey);
-    uint8_t out[16];
-    memcpy(out, iv, 16);
-    for (size_t i = 0; i < len; i += 16) {
-        sm4_calc_block(rkey, out, plain + i);
-        memcpy(out, plain + i, 16);
-        _xor_block(plain + i, cipher + i, 16);
-    }
-    // memset(rkey, 0, sizeof(rkey));
-    // memset(out, 0, sizeof(out));
+    sm4_ofb_encrypt(key, iv, len, cipher, plain);
 }
 
 
