@@ -249,6 +249,7 @@ void aes_ ## KEY ## _ecb_encrypt(const uint8_t *key, size_t len, const uint8_t *
         aes_encrypt(rkey, RN, plain + i, cipher + i); \
     } \
 } \
+\
 void aes_ ## KEY ## _ecb_decrypt(const uint8_t *key, size_t len, const uint8_t *cipher, uint8_t *plain) { \
     uint32_t rkey[RN * 4 + 4]; \
     aes_set_key(key, KEY / 8, RN, rkey); \
@@ -258,5 +259,87 @@ void aes_ ## KEY ## _ecb_decrypt(const uint8_t *key, size_t len, const uint8_t *
 }
 
 AES_DEF_ECB(128, 10)
-AES_DEF_ECB(192, 10)
-AES_DEF_ECB(256, 10)
+AES_DEF_ECB(192, 12)
+AES_DEF_ECB(256, 14)
+
+
+#define AES_DEF_CBC(KEY, RN) \
+void aes_ ## KEY ## _cbc_encrypt(const uint8_t *key, const uint8_t *iv, size_t len, const uint8_t *plain, uint8_t *cipher) { \
+    uint32_t rkey[RN * 4 + 4]; \
+    aes_set_key(key, KEY / 8, RN, rkey); \
+    uint8_t out[16]; \
+    memcpy(out, iv, 16); \
+    for (size_t i = 0; i < len; i += 16) { \
+        _xor_block(out, plain + i, 16); \
+        aes_encrypt(rkey, RN, plain + i, cipher + i); \
+        memcpy(out, cipher + i, 16); \
+    } \
+} \
+\
+void aes_ ## KEY ## _cbc_decrypt(const uint8_t *key, const uint8_t *iv, size_t len, const uint8_t *cipher, uint8_t *plain) { \
+    uint32_t rkey[RN * 4 + 4]; \
+    aes_set_key(key, KEY / 8, RN, rkey); \
+    uint8_t out[16]; \
+    memcpy(out, iv, 16); \
+    for (size_t i = 0; i < len; i += 16) { \
+        aes_decrypt(rkey, RN, cipher + i, plain + i); \
+        _xor_block(plain + i, out, 16); \
+        memcpy(out, cipher + i, 16); \
+    } \
+}
+
+AES_DEF_CBC(128, 10)
+AES_DEF_CBC(192, 12)
+AES_DEF_CBC(256, 14)
+
+
+#define AES_DEF_CFB(KEY, RN) \
+void aes_ ## KEY ## _cfb_encrypt(const uint8_t *key, const uint8_t *iv, size_t len, const uint8_t *plain, uint8_t *cipher) { \
+    uint32_t rkey[RN * 4 + 4]; \
+    aes_set_key(key, KEY / 8, RN, rkey); \
+    uint8_t out[16]; \
+    memcpy(out, iv, 16); \
+    for (size_t i = 0; i < len; i += 16) { \
+        aes_encrypt(rkey, RN, out, cipher + i); \
+        _xor_block(cipher + i, plain + i, 16); \
+        memcpy(out, cipher + i, 16); \
+    } \
+} \
+\
+void aes_ ## KEY ## _cfb_decrypt(const uint8_t *key, const uint8_t *iv, size_t len, const uint8_t *cipher, uint8_t *plain) { \
+    uint32_t rkey[RN * 4 + 4]; \
+    aes_set_key(key, KEY / 8, RN, rkey); \
+    uint8_t out[16]; \
+    memcpy(out, iv, 16); \
+    for (size_t i = 0; i < len; i += 16) { \
+        aes_encrypt(rkey, RN, out, plain + i); \
+        _xor_block(plain + i, cipher + i, 16); \
+        memcpy(out, cipher + i, 16); \
+    } \
+}
+
+AES_DEF_CFB(128, 10)
+AES_DEF_CFB(192, 12)
+AES_DEF_CFB(256, 14)
+
+
+#define AES_DEF_OFB(KEY, RN) \
+void aes_ ## KEY ## _ofb_encrypt(const uint8_t *key, const uint8_t *iv, size_t len, const uint8_t *in, uint8_t *out) { \
+    uint32_t rkey[RN * 4 + 4]; \
+    aes_set_key(key, KEY / 8, RN, rkey); \
+    uint8_t blk[16]; \
+    memcpy(out, iv, 16); \
+    for (size_t i = 0; i < len; i += 16) { \
+        aes_encrypt(rkey, RN, blk, out + i); \
+        memcpy(blk, out + i, 16); \
+        _xor_block(out + i, in + i, 16); \
+    } \
+} \
+\
+void aes_ ## KEY ## _ofb_decrypt(const uint8_t *key, const uint8_t *iv, size_t len, const uint8_t *in, uint8_t *out) { \
+    aes_ ## KEY ## _ofb_encrypt(key, iv, len, in, out); \
+}
+
+AES_DEF_OFB(128, 10)
+AES_DEF_OFB(192, 12)
+AES_DEF_OFB(256, 14)

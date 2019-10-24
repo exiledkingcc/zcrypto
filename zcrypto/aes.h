@@ -16,13 +16,13 @@ extern "C" {
 AES_FUNC_DEF_NO_IV(KEY, ecb, encrypt); \
 AES_FUNC_DEF_NO_IV(KEY, ecb, decrypt); \
 \
-AES_FUNC_DEF_HAS_IV(KEY, cbc, decrypt); \
+AES_FUNC_DEF_HAS_IV(KEY, cbc, encrypt); \
 AES_FUNC_DEF_HAS_IV(KEY, cbc, decrypt); \
 \
-AES_FUNC_DEF_HAS_IV(KEY, cfb, decrypt); \
+AES_FUNC_DEF_HAS_IV(KEY, cfb, encrypt); \
 AES_FUNC_DEF_HAS_IV(KEY, cfb, decrypt); \
 \
-AES_FUNC_DEF_HAS_IV(KEY, ofb, decrypt); \
+AES_FUNC_DEF_HAS_IV(KEY, ofb, encrypt); \
 AES_FUNC_DEF_HAS_IV(KEY, ofb, decrypt);
 
 

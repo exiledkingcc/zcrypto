@@ -71,6 +71,31 @@ static void aes_test () {
     expect_equal("aes 128 encrypt", cipher, cipher2, 32);
     aes_128_ecb_decrypt(key, 32, cipher, plain2);
     expect_equal("aes 128 decrypt", plain, plain2, 32);
+
+    aes_192_ecb_encrypt(key, 32, plain, cipher);
+    aes_192_ecb_decrypt(key, 32, cipher, plain2);
+    expect_equal("aes 192", plain, plain2, 32);
+
+    aes_256_ecb_encrypt(key, 32, plain, cipher);
+    aes_256_ecb_decrypt(key, 32, cipher, plain2);
+    expect_equal("aes 256", plain, plain2, 32);
+
+    #define _aes_with_iv_test(MODE) \
+    aes_128_ ## MODE ## _encrypt(key, key, 32, plain, cipher); \
+    aes_128_ ## MODE ## _decrypt(key, key, 32, plain, cipher); \
+    expect_equal("aes 128 " #MODE, plain, plain2, 32); \
+    aes_192_ ## MODE ## _encrypt(key, key, 32, plain, cipher); \
+    aes_192_ ## MODE ## _decrypt(key, key, 32, plain, cipher); \
+    expect_equal("aes 192 " #MODE, plain, plain2, 32); \
+    aes_256_ ## MODE ## _encrypt(key, key, 32, plain, cipher); \
+    aes_256_ ## MODE ## _decrypt(key, key, 32, plain, cipher); \
+    expect_equal("aes 256 " #MODE, plain, plain2, 32);
+
+    _aes_with_iv_test(cbc)
+    _aes_with_iv_test(cfb)
+    _aes_with_iv_test(ofb)
+
+    #undef _aes_with_iv_test
 }
 
 static void cipher_sm4_test(int mode, const char* name) {
