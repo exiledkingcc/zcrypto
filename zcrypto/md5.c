@@ -44,7 +44,7 @@ static inline uint32_t I(uint32_t B, uint32_t C, uint32_t D) {
 static void md5_blk_update(uint32_t hash[4], const uint8_t data[64]) {
     uint32_t W[16];
     for (int i = 0; i < 16; ++i) {
-        W[i] = *(const uint32_t*)(data + i * 4);
+        W[i] = _load_le_u32(data + i * 4);
     }
     uint32_t A = hash[0];
     uint32_t B = hash[1];
@@ -128,7 +128,7 @@ static void md5_blk_update(uint32_t hash[4], const uint8_t data[64]) {
 
 static inline void _store_len(uint64_t len, uint8_t data[8]) {
     len *= 8;
-    *(uint64_t*)data = len;
+    _store_le_u64(len, data);
 }
 
 static void md5_blk_done(uint32_t hash[4], const uint8_t *data, uint64_t total) {

@@ -48,7 +48,7 @@ do { \
 static void sm3_blk_update(uint32_t hash[8], const uint8_t data[64]) {
     uint32_t W[68];
     for (int i = 0; i < 16; ++i) {
-        W[i] = _load_u32(data + i * 4);
+        W[i] = _load_be_u32(data + i * 4);
     }
     for (int i = 16; i < 68; ++i) {
         W[i] = _p1(W[i - 16] ^ W[i - 9] ^ _lshift(W[i - 3] , 15)) ^ _lshift(W[i - 13], 7) ^ W[i -6];
@@ -80,8 +80,7 @@ static void sm3_blk_update(uint32_t hash[8], const uint8_t data[64]) {
 
 static inline void _store_len(uint64_t len, uint8_t data[8]) {
     len *= 8;
-    _store_u32(len >> 32, data);
-    _store_u32(len & 0xffffffffull, data + 4);
+    _store_be_u64(len, data);
 }
 
 static void sm3_blk_done(uint32_t hash[8], const uint8_t *data, uint64_t total) {
@@ -143,14 +142,14 @@ void sm3_digest(sm3_ctx_t *ctx, uint8_t *data) {
     uint32_t hash[8];
     memcpy(hash, ctx->hash, 32);
     sm3_blk_done(hash, ctx->blk, ctx->len);
-    _store_u32(hash[0], data);
-    _store_u32(hash[1], data + 4);
-    _store_u32(hash[2], data + 8);
-    _store_u32(hash[3], data + 12);
-    _store_u32(hash[4], data + 16);
-    _store_u32(hash[5], data + 20);
-    _store_u32(hash[6], data + 24);
-    _store_u32(hash[7], data + 28);
+    _store_be_u32(hash[0], data);
+    _store_be_u32(hash[1], data + 4);
+    _store_be_u32(hash[2], data + 8);
+    _store_be_u32(hash[3], data + 12);
+    _store_be_u32(hash[4], data + 16);
+    _store_be_u32(hash[5], data + 20);
+    _store_be_u32(hash[6], data + 24);
+    _store_be_u32(hash[7], data + 28);
 }
 
 void sm3_hexdigest(sm3_ctx_t *ctx, uint8_t *data) {

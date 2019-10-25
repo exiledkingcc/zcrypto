@@ -75,10 +75,10 @@ static uint32_t CK[32] = {
 
 static void sm4_calc_key(const uint8_t key[16], uint32_t rkey[32]) {
     uint32_t x[5];
-    x[0] = _load_u32(key);
-    x[1] = _load_u32(key + 4);
-    x[2] = _load_u32(key + 8);
-    x[3] = _load_u32(key + 12);
+    x[0] = _load_be_u32(key);
+    x[1] = _load_be_u32(key + 4);
+    x[2] = _load_be_u32(key + 8);
+    x[3] = _load_be_u32(key + 12);
 
     x[0] ^= FK[0];
     x[1] ^= FK[1];
@@ -108,10 +108,10 @@ static inline void sm4_rev_key(uint32_t rkey[32]) {
 
 static void sm4_calc_block(const uint32_t rkey[32], const uint8_t in[16], uint8_t out[16]) {
     uint32_t x[5];
-    x[0] = _load_u32(in);
-    x[1] = _load_u32(in + 4);
-    x[2] = _load_u32(in + 8);
-    x[3] = _load_u32(in + 12);
+    x[0] = _load_be_u32(in);
+    x[1] = _load_be_u32(in + 4);
+    x[2] = _load_be_u32(in + 8);
+    x[3] = _load_be_u32(in + 12);
 
     for (int i = 0; i < 32; ++i) {
         uint32_t *y0 = x + (i % 5);
@@ -123,10 +123,10 @@ static void sm4_calc_block(const uint32_t rkey[32], const uint8_t in[16], uint8_
         *y4 = *y0 ^ _st1(*y1 ^ *y2 ^ *y3 ^ rkey[i]);
     }
 
-    _store_u32(x[0], out);
-    _store_u32(x[4], out + 4);
-    _store_u32(x[3], out + 8);
-    _store_u32(x[2], out + 12);
+    _store_be_u32(x[0], out);
+    _store_be_u32(x[4], out + 4);
+    _store_be_u32(x[3], out + 8);
+    _store_be_u32(x[2], out + 12);
     // memset(x, 0, sizeof(x));
 }
 
