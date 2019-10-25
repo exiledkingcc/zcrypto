@@ -48,12 +48,12 @@ static uint32_t _sbox(uint32_t x) {
 
 static inline uint32_t _st1(uint32_t x) {
     x = _sbox(x);
-    return x ^ _rleft(x, 2) ^ _rleft(x, 10) ^ _rleft(x, 18) ^ _rleft(x, 24);
+    return x ^ _lshift(x, 2) ^ _lshift(x, 10) ^ _lshift(x, 18) ^ _lshift(x, 24);
 }
 
 static inline uint32_t _st2(uint32_t x) {
     x = _sbox(x);
-    return x ^ _rleft(x, 13) ^ _rleft(x, 23);
+    return x ^ _lshift(x, 13) ^ _lshift(x, 23);
 }
 
 

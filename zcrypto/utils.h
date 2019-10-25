@@ -8,7 +8,7 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>
 
-static inline uint32_t _rleft(uint32_t x, int n) {
+static inline uint32_t _lshift(uint32_t x, int n) {
     return ( (x) << (n) ) | ( (x) >> (32 - n) );
 }
 
