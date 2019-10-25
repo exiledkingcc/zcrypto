@@ -89,6 +89,7 @@ static void sm3_blk_done(uint32_t hash[8], const uint8_t *data, uint64_t total) 
     size_t len = total % 64;
     if (len == 0) {
         memset(blk, 0, 56);
+        blk[0] = 0x80;
         _store_len(total, blk + 56);
         sm3_blk_update(hash, blk);
     } else {
