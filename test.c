@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "zcrypto/cipher.h"
 #include "zcrypto/aes.h"
+#include "zcrypto/sm3.h"
 #include "zcrypto/sm4.h"
 
 static void expect_equal(const char *name, const uint8_t *a, const uint8_t *b, size_t len) {
@@ -161,6 +162,22 @@ static void cipher_aes_test(int mode, const char* name) {
     expect_equal(namex, p1, p2, 32);
 }
 
+static void sm3_test() {
+    uint8_t data1[] = {'a', 'b', 'c'};
+    uint8_t digest1[32] = {
+        0x66, 0xc7, 0xf0, 0xf4, 0x62, 0xee, 0xed, 0xd9, 0xd1, 0xf2, 0xd4, 0x6b, 0xdc, 0x10, 0xe4, 0xe2,
+        0x41, 0x67, 0xc4, 0x87, 0x5c, 0xf2, 0xf7, 0xa2, 0x29, 0x7d, 0xa0, 0x2b, 0x8f, 0x4b, 0xa8, 0xe0
+    };
+    uint8_t temp[32];
+
+    sm3_ctx_t ctx;
+    sm3_init(&ctx);
+    sm3_update(&ctx, data1, 3);
+    sm3_digest(&ctx, temp);
+    expect_equal("sm3 len=3", digest1, temp, 32);
+}
+
+
 int main() {
     sm4_test();
     aes_test();
@@ -174,4 +191,6 @@ int main() {
     cipher_aes_test(MODE_CBC, "AES MODE_CBC");
     cipher_aes_test(MODE_CFB, "AES MODE_CFB");
     cipher_aes_test(MODE_OFB, "AES MODE_OFB");
+
+    sm3_test();
 }

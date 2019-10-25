@@ -29,6 +29,24 @@ static inline void _xor_block(uint8_t *out, const uint8_t *in, size_t len) {
     }
 }
 
+static inline char _hex(uint8_t n) {
+    static const char HEX[16] = {
+        '0', '1', '2', '3', '4', '5', '6', '7',
+        '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+    };
+    return HEX[n];
+}
+
+// expand uint8 data to hex format in place, so data should have len * 2 space
+static inline void _expand_hex(uint8_t *data, size_t len) {
+    for (int i = len; i >= 0; --i) {
+        uint8_t x = data[i];
+        data[i * 2] = _hex((x >> 4) & 0xf);
+        data[i * 2 + 1] = _hex(x & 0xf);
+    }
+}
+
+
 # ifdef __cplusplus
 }
 # endif
