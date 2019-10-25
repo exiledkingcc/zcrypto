@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "zcrypto/cipher.h"
 #include "zcrypto/aes.h"
+#include "zcrypto/md5.h"
 #include "zcrypto/sm3.h"
 #include "zcrypto/sm4.h"
 
@@ -192,6 +193,22 @@ static void sm3_test() {
     expect_equal("sm3 bits=512", digest2, temp, 32);
 }
 
+static void md5_test() {
+    uint8_t digest1[16] = {0xd4, 0x1d, 0x8c, 0xd9, 0x8f, 0x00, 0xb2, 0x04, 0xe9, 0x80, 0x09, 0x98, 0xec, 0xf8, 0x42, 0x7e};
+    uint8_t digest2[16] = {0x9e, 0x10, 0x7d, 0x9d, 0x37, 0x2b, 0xb6, 0x82, 0x6b, 0xd8, 0x1d, 0x35, 0x42, 0xa4, 0x19, 0xd6};
+    uint8_t temp[16];
+
+    md5_ctx_t ctx;
+    md5_init(&ctx);
+    md5_digest(&ctx, temp);
+    expect_equal("md5 bits=0", digest1, temp, 16);
+
+    md5_init(&ctx);
+    md5_update(&ctx, (const uint8_t*)"The quick brown fox jumps over the lazy dog", 43);
+    md5_digest(&ctx, temp);
+    expect_equal("md5 bits=43*8", digest2, temp, 16);
+}
+
 
 int main() {
     sm4_test();
@@ -208,4 +225,5 @@ int main() {
     cipher_aes_test(MODE_OFB, "AES MODE_OFB");
 
     sm3_test();
+    md5_test();
 }

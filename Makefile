@@ -32,6 +32,7 @@ SOURCES = \
 test.c \
 zcrypto/cipher.c \
 zcrypto/aes.c \
+zcrypto/md5.c \
 zcrypto/sm3.c \
 zcrypto/sm4.c
 
