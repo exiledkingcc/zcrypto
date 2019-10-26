@@ -186,10 +186,10 @@ void md5_digest(md5_ctx_t *ctx, uint8_t *data) {
     uint32_t hash[4];
     memcpy(hash, ctx->hash, 16);
     md5_blk_done(hash, ctx->blk, ctx->len);
-    *(uint32_t*)data        = hash[0];
-    *(uint32_t*)(data + 4)  = hash[1];
-    *(uint32_t*)(data + 8)  = hash[2];
-    *(uint32_t*)(data + 12) = hash[3];
+    _store_le_u32(hash[0], data);
+    _store_le_u32(hash[1], data + 4);
+    _store_le_u32(hash[2], data + 8);
+    _store_le_u32(hash[3], data + 12);
 }
 
 void md5_hexdigest(md5_ctx_t *ctx, uint8_t *data) {

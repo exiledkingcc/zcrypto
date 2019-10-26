@@ -2,6 +2,7 @@
 #include "zcrypto/cipher.h"
 #include "zcrypto/aes.h"
 #include "zcrypto/md5.h"
+#include "zcrypto/sha1.h"
 #include "zcrypto/sm3.h"
 #include "zcrypto/sm4.h"
 
@@ -203,10 +204,24 @@ static void md5_test() {
     md5_digest(&ctx, temp);
     expect_equal("md5 bits=0", digest1, temp, 16);
 
-    md5_init(&ctx);
     md5_update(&ctx, (const uint8_t*)"The quick brown fox jumps over the lazy dog", 43);
     md5_digest(&ctx, temp);
     expect_equal("md5 bits=43*8", digest2, temp, 16);
+}
+
+static void sha1_test() {
+    uint8_t digest1[20] = {0xda, 0x39, 0xa3, 0xee, 0x5e, 0x6b, 0x4b, 0x0d, 0x32, 0x55, 0xbf, 0xef, 0x95, 0x60, 0x18, 0x90, 0xaf, 0xd8, 0x07, 0x09};
+    uint8_t digest2[20] = {0x2f, 0xd4, 0xe1, 0xc6, 0x7a, 0x2d, 0x28, 0xfc, 0xed, 0x84, 0x9e, 0xe1, 0xbb, 0x76, 0xe7, 0x39, 0x1b, 0x93, 0xeb, 0x12};
+    uint8_t temp[20];
+
+    sha1_ctx_t ctx;
+    sha1_init(&ctx);
+    sha1_digest(&ctx, temp);
+    expect_equal("sha1 bits=0", digest1, temp, 20);
+
+    sha1_update(&ctx, (const uint8_t*)"The quick brown fox jumps over the lazy dog", 43);
+    sha1_digest(&ctx, temp);
+    expect_equal("sha1 bits=43*8", digest2, temp, 20);
 }
 
 
@@ -226,4 +241,5 @@ int main() {
 
     sm3_test();
     md5_test();
+    sha1_test();
 }
