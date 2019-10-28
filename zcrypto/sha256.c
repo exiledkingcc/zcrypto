@@ -85,17 +85,21 @@ void sha256_blk_update(uint32_t hash[8], const uint8_t data[64]) {
     hash[7] += H;
 }
 
+void sha256_hash_init(uint32_t hash[8]) {
+    hash[0] = 0x6a09e667ul;
+    hash[1] = 0xbb67ae85ul;
+    hash[2] = 0x3c6ef372ul;
+    hash[3] = 0xa54ff53aul;
+    hash[4] = 0x510e527ful;
+    hash[5] = 0x9b05688cul;
+    hash[6] = 0x1f83d9abul;
+    hash[7] = 0x5be0cd19ul;
+}
+
 
 void sha256_init(sha256_ctx_t *ctx) {
     memset(ctx, 0, sizeof(sha256_ctx_t));
-    ctx->hash[0] = 0x6a09e667ul;
-    ctx->hash[1] = 0xbb67ae85ul;
-    ctx->hash[2] = 0x3c6ef372ul;
-    ctx->hash[3] = 0xa54ff53aul;
-    ctx->hash[4] = 0x510e527ful;
-    ctx->hash[5] = 0x9b05688cul;
-    ctx->hash[6] = 0x1f83d9abul;
-    ctx->hash[7] = 0x5be0cd19ul;
+    sha256_hash_init(ctx->hash);
 }
 
 void sha256_update(sha256_ctx_t *ctx, const uint8_t *data, size_t len) {

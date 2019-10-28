@@ -127,13 +127,17 @@ void md5_blk_update(uint32_t hash[4], const uint8_t data[64]) {
     hash[3] += D;
 }
 
+void md5_hash_init(uint32_t hash[4]) {
+    hash[0] = 0x67452301ul;
+    hash[1] = 0xefcdab89ul;
+    hash[2] = 0x98badcfeul;
+    hash[3] = 0x10325476ul;
+}
+
 
 void md5_init(md5_ctx_t *ctx) {
     memset(ctx, 0, sizeof(md5_ctx_t));
-    ctx->hash[0] = 0x67452301ul;
-    ctx->hash[1] = 0xefcdab89ul;
-    ctx->hash[2] = 0x98badcfeul;
-    ctx->hash[3] = 0x10325476ul;
+    md5_hash_init(ctx->hash);
 }
 
 void md5_update(md5_ctx_t *ctx, const uint8_t *data, size_t len) {

@@ -79,17 +79,21 @@ void sm3_blk_update(uint32_t hash[8], const uint8_t data[64]) {
     hash[7] ^= H;
 }
 
+void sm3_hash_init(uint32_t hash[8]) {
+    hash[0] = 0x7380166ful;
+    hash[1] = 0x4914b2b9ul;
+    hash[2] = 0x172442d7ul;
+    hash[3] = 0xda8a0600ul;
+    hash[4] = 0xa96f30bcul;
+    hash[5] = 0x163138aaul;
+    hash[6] = 0xe38dee4dul;
+    hash[7] = 0xb0fb0e4eul;
+}
+
 
 void sm3_init(sm3_ctx_t *ctx) {
     memset(ctx, 0, sizeof(sm3_ctx_t));
-    ctx->hash[0] = 0x7380166ful;
-    ctx->hash[1] = 0x4914b2b9ul;
-    ctx->hash[2] = 0x172442d7ul;
-    ctx->hash[3] = 0xda8a0600ul;
-    ctx->hash[4] = 0xa96f30bcul;
-    ctx->hash[5] = 0x163138aaul;
-    ctx->hash[6] = 0xe38dee4dul;
-    ctx->hash[7] = 0xb0fb0e4eul;
+    sm3_hash_init(ctx->hash);
 }
 
 void sm3_update(sm3_ctx_t *ctx, const uint8_t *data, size_t len) {

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "zcrypto/cipher.h"
 #include "zcrypto/aes.h"
+#include "zcrypto/hash.h"
 #include "zcrypto/md5.h"
 #include "zcrypto/sha1.h"
 #include "zcrypto/sha256.h"
@@ -246,6 +247,38 @@ static void sha256_test() {
     expect_equal("sha256 bits=43*8", digest2, temp, 32);
 }
 
+static void hash_test() {
+    const char *text[] = {
+        "abc",
+        "The quick brown fox jumps over the lazy dog",
+        "0123456789abcdef0123456789abcdef",
+    };
+
+    hash_ctx_t ctx;
+    uint8_t hex[80] = {0};
+
+    #define _hash_test(ALG) \
+    hash_init(&ctx, ALG); \
+    memset(hex, 0, 80); \
+    hash_hexdigest(&ctx, hex); \
+    printf(#ALG " hash %s of <empty>\n", hex); \
+    for (int i = 0; i < 3; ++i) { \
+        hash_init(&ctx, ALG); \
+        memset(hex, 0, 80); \
+        hash_update(&ctx, (const uint8_t*)text[i], strlen(text[i])); \
+        hash_hexdigest(&ctx, hex); \
+        printf(#ALG " hash %s of %s\n", hex, text[i]); \
+    }
+
+    _hash_test(HASH_ALG_SM3)
+    _hash_test(HASH_ALG_MD5)
+    _hash_test(HASH_ALG_SHA1)
+    _hash_test(HASH_ALG_SHA256)
+
+    #undef _hash_test
+
+}
+
 
 int main() {
     sm4_test();
@@ -265,4 +298,5 @@ int main() {
     md5_test();
     sha1_test();
     sha256_test();
+    hash_test();
 }
