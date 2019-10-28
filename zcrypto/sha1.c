@@ -137,5 +137,5 @@ void sha1_digest(sha1_ctx_t *ctx, uint8_t *data) {
 
 void sha1_hexdigest(sha1_ctx_t *ctx, uint8_t *data) {
     sha1_digest(ctx, data);
-    _expand_hex(data, 16);
+    _expand_hex(data, 20);
 }
