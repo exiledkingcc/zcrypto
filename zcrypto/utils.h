@@ -98,7 +98,11 @@ static inline void _store_be_u64(const uint64_t x, uint8_t bs[8]) {
 
 
 static inline uint32_t _lshift(uint32_t x, int n) {
-    return ( (x) << (n) ) | ( (x) >> (32 - n) );
+    return (x << n) | (x >> (32 - n));
+}
+
+static inline uint32_t _rshift(uint32_t x, int n) {
+    return (x << (32 - n)) | (x >> n);
 }
 
 static inline void _xor_block(uint8_t *out, const uint8_t *in, size_t len) {

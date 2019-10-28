@@ -34,7 +34,7 @@ see test.c for details.
 * SM3
 * MD5
 * SHA1
-* SHA256(*TODO*)
+* SHA256
 * HMAC(*TODO*)
 
 how to use:
@@ -49,7 +49,7 @@ see test.c for details.
 ---
 **HASH算法**
 
-支持SM3，MD5，SHA1，计划支持SHA256与HMAC。使用`{alg}_init`初始化，使用`{alg}_update`更新数据，使用`{alg}_[hex]digest`输出hash值。可以在任意时候调用`{alg}_[hex]digest`获取当前数据的hash值。但是需要保证结果的空间足够存hash值。具体使用请看test.c。
+支持SM3，MD5，SHA1，计划支持HMAC。使用`{alg}_init`初始化，使用`{alg}_update`更新数据，使用`{alg}_[hex]digest`输出hash值。可以在任意时候调用`{alg}_[hex]digest`获取当前数据的hash值。但是需要保证结果的空间足够存hash值。具体使用请看test.c。
 
 ## asymmetric key encryption
 *maybe, no plan for now*
