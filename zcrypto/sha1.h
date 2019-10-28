@@ -5,7 +5,6 @@
 extern "C" {
 #endif
 
-#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -19,6 +18,8 @@ void sha1_init(sha1_ctx_t *ctx);
 void sha1_update(sha1_ctx_t *ctx, const uint8_t *data, size_t len);
 void sha1_digest(sha1_ctx_t *ctx, uint8_t *data);
 void sha1_hexdigest(sha1_ctx_t *ctx, uint8_t *data);
+
+void sha1_blk_update(uint32_t hash[5], const uint8_t blk[64]);
 
 # ifdef __cplusplus
 }

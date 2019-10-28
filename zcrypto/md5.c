@@ -1,4 +1,5 @@
 #include "md5.h"
+#include "hash.h"
 #include "utils.h"
 
 static const uint32_t TT[] = {
@@ -41,7 +42,7 @@ static inline uint32_t I(uint32_t B, uint32_t C, uint32_t D) {
 #define HH(A, B, C, D, X, T, S) A = B + _lshift(A + H(B, C, D) + X + T, S)
 #define II(A, B, C, D, X, T, S) A = B + _lshift(A + I(B, C, D) + X + T, S)
 
-static void md5_blk_update(uint32_t hash[4], const uint8_t data[64]) {
+void md5_blk_update(uint32_t hash[4], const uint8_t data[64]) {
     uint32_t W[16];
     for (int i = 0; i < 16; ++i) {
         W[i] = _load_le_u32(data + i * 4);
@@ -126,41 +127,6 @@ static void md5_blk_update(uint32_t hash[4], const uint8_t data[64]) {
     hash[3] += D;
 }
 
-static inline void _store_len(uint64_t len, uint8_t data[8]) {
-    len *= 8;
-    _store_le_u64(len, data);
-}
-
-static void md5_blk_done(uint32_t hash[4], const uint8_t *data, uint64_t total) {
-    uint8_t blk[64];
-    size_t len = total % 64;
-    if (len == 0) {
-        memset(blk, 0, 56);
-        blk[0] = 0x80;
-        _store_len(total, blk + 56);
-        md5_blk_update(hash, blk);
-    } else {
-        memcpy(blk, data, len);
-        blk[len] = 0x80;
-        ++len;
-        if (len <= 56) {
-            if (len != 56) {
-                memset(blk + len, 0, 56 - len);
-            }
-            _store_len(total, blk + 56);
-            md5_blk_update(hash, blk);
-        } else {
-            if (len < 64) {
-                memset(blk + len, 0, 64 - len);
-            }
-            md5_blk_update(hash, blk);
-            memset(blk, 0, 56);
-            _store_len(total, blk + 56);
-            md5_blk_update(hash, blk);
-        }
-    }
-}
-
 
 void md5_init(md5_ctx_t *ctx) {
     memset(ctx, 0, sizeof(md5_ctx_t));
@@ -171,25 +137,14 @@ void md5_init(md5_ctx_t *ctx) {
 }
 
 void md5_update(md5_ctx_t *ctx, const uint8_t *data, size_t len) {
-    const uint8_t *end = data + len;
-    const uint8_t *p = data;
-    for (; p + 64 <= end; p += 64) {
-        md5_blk_update(ctx->hash, p);
-    }
-    ctx->len += len;
-    if (p < end) {
-        memcpy(ctx->blk, p, end - p);
-    }
+    _hash_update(md5_blk_update, ctx->hash, ctx->blk, data, len, &ctx->len);
 }
 
 void md5_digest(md5_ctx_t *ctx, uint8_t *data) {
     uint32_t hash[4];
     memcpy(hash, ctx->hash, 16);
-    md5_blk_done(hash, ctx->blk, ctx->len);
-    _store_le_u32(hash[0], data);
-    _store_le_u32(hash[1], data + 4);
-    _store_le_u32(hash[2], data + 8);
-    _store_le_u32(hash[3], data + 12);
+    _hash_done(md5_blk_update, hash, ctx->blk, ctx->len, true);
+    _hash_digest(le, hash, 4, data);
 }
 
 void md5_hexdigest(md5_ctx_t *ctx, uint8_t *data) {

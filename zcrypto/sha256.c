@@ -1,4 +1,5 @@
 #include "sha256.h"
+#include "hash.h"
 #include "utils.h"
 
 static inline uint32_t CH(uint32_t X, uint32_t Y, uint32_t Z) {
@@ -44,7 +45,7 @@ static const uint32_t K[] = {
     0x90befffaul, 0xa4506cebul, 0xbef9a3f7ul, 0xc67178f2ul,
 };
 
-static void sha256_blk_update(uint32_t hash[8], const uint8_t data[64]) {
+void sha256_blk_update(uint32_t hash[8], const uint8_t data[64]) {
     uint32_t W[64];
     for (int i = 0; i < 16; ++i) {
         W[i] = _load_be_u32(data + i * 4);
@@ -84,41 +85,6 @@ static void sha256_blk_update(uint32_t hash[8], const uint8_t data[64]) {
     hash[7] += H;
 }
 
-static inline void _store_len(uint64_t len, uint8_t data[8]) {
-    len *= 8;
-    _store_be_u64(len, data);
-}
-
-static void sha256_blk_done(uint32_t hash[8], const uint8_t *data, uint64_t total) {
-    uint8_t blk[64];
-    size_t len = total % 64;
-    if (len == 0) {
-        memset(blk, 0, 56);
-        blk[0] = 0x80;
-        _store_len(total, blk + 56);
-        sha256_blk_update(hash, blk);
-    } else {
-        memcpy(blk, data, len);
-        blk[len] = 0x80;
-        ++len;
-        if (len <= 56) {
-            if (len != 56) {
-                memset(blk + len, 0, 56 - len);
-            }
-            _store_len(total, blk + 56);
-            sha256_blk_update(hash, blk);
-        } else {
-            if (len < 64) {
-                memset(blk + len, 0, 64 - len);
-            }
-            sha256_blk_update(hash, blk);
-            memset(blk, 0, 56);
-            _store_len(total, blk + 56);
-            sha256_blk_update(hash, blk);
-        }
-    }
-}
-
 
 void sha256_init(sha256_ctx_t *ctx) {
     memset(ctx, 0, sizeof(sha256_ctx_t));
@@ -133,29 +99,14 @@ void sha256_init(sha256_ctx_t *ctx) {
 }
 
 void sha256_update(sha256_ctx_t *ctx, const uint8_t *data, size_t len) {
-    const uint8_t *end = data + len;
-    const uint8_t *p = data;
-    for (; p + 64 <= end; p += 64) {
-        sha256_blk_update(ctx->hash, p);
-    }
-    ctx->len += len;
-    if (p < end) {
-        memcpy(ctx->blk, p, end - p);
-    }
+    _hash_update(sha256_blk_update, ctx->hash, ctx->blk, data, len, &ctx->len);
 }
 
 void sha256_digest(sha256_ctx_t *ctx, uint8_t *data) {
     uint32_t hash[8];
     memcpy(hash, ctx->hash, 32);
-    sha256_blk_done(hash, ctx->blk, ctx->len);
-    _store_be_u32(hash[0], data);
-    _store_be_u32(hash[1], data + 4);
-    _store_be_u32(hash[2], data + 8);
-    _store_be_u32(hash[3], data + 12);
-    _store_be_u32(hash[4], data + 16);
-    _store_be_u32(hash[5], data + 20);
-    _store_be_u32(hash[6], data + 24);
-    _store_be_u32(hash[7], data + 28);
+    _hash_done(sha256_blk_update, hash, ctx->blk, ctx->len, false);
+    _hash_digest(be, hash, 8, data);
 }
 
 void sha256_hexdigest(sha256_ctx_t *ctx, uint8_t *data) {
