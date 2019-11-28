@@ -45,7 +45,7 @@ all: $(BUILD_DIR)/test.elf
 libs = $(BUILD_DIR)/libzcrypto.a
 
 $(BUILD_DIR)/%.elf: %.c $(libs) Makefile
-	$(CC) $< $(libs) $(LDFLAGS) -o $@
+	$(CC) $(CFLAGS) $< $(libs) $(LDFLAGS) -o $@
 	$(SZ) $@
 
 $(BUILD_DIR)/libzcrypto.a: $(OBJECTS) Makefile
