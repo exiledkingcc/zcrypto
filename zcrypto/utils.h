@@ -106,7 +106,7 @@ static inline uint32_t _rshift(uint32_t x, int n) {
 }
 
 static inline void _xor_block(uint8_t *out, const uint8_t *in, size_t len) {
-    for (int i = 0; i < len; ++i) {
+    for (size_t i = 0; i < len; ++i) {
         out[i] ^= in[i];
     }
 }
@@ -121,10 +121,11 @@ static inline char _hex(uint8_t n) {
 
 // expand uint8 data to hex format in place, so data should have len * 2 space
 static inline void _expand_hex(uint8_t *data, size_t len) {
-    for (int i = len - 1; i >= 0; --i) {
-        uint8_t x = data[i];
-        data[i * 2] = _hex((x >> 4) & 0xf);
-        data[i * 2 + 1] = _hex(x & 0xf);
+    for (size_t i = 0; i < len; ++i) {
+        size_t j = len - 1 - i;
+        uint8_t x = data[j];
+        data[j * 2] = _hex((x >> 4) & 0xf);
+        data[j * 2 + 1] = _hex(x & 0xf);
     }
 }
 

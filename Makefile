@@ -19,7 +19,7 @@ endif
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
 
-CFLAGS = -g -Wall -std=c11
+CFLAGS = -g -Wall -Wextra -std=c11
 
 LIBS = -lc -lm
 LIBDIR =
@@ -29,7 +29,6 @@ LDFLAGS = $(LIBDIR) $(LIBS)
 BUILD_DIR = build
 
 SOURCES = \
-test.c \
 zcrypto/cipher.c \
 zcrypto/aes.c \
 zcrypto/md5.c \
@@ -43,10 +42,15 @@ OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(SOURCES)))
 
 all: $(BUILD_DIR)/test.elf
+libs = $(BUILD_DIR)/libzcrypto.a
 
-$(BUILD_DIR)/%.elf: $(OBJECTS) Makefile
-	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
+$(BUILD_DIR)/%.elf: %.c $(libs) Makefile
+	$(CC) $< $(libs) $(LDFLAGS) -o $@
 	$(SZ) $@
+
+$(BUILD_DIR)/libzcrypto.a: $(OBJECTS) Makefile
+	ar rcs $@ $(OBJECTS)
+	ranlib $@
 
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
