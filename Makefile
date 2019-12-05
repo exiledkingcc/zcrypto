@@ -1,3 +1,8 @@
+######################################
+# building variables
+######################################
+DEBUG = 1
+
 #######################################
 # binaries
 #######################################
@@ -19,7 +24,13 @@ endif
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
 
-CFLAGS = -g -Wall -Wextra -std=c11
+CFLAGS = -Wall -Wextra -std=c11
+
+ifeq ($(DEBUG), 1)
+CFLAGS += -g
+else
+CFLAGS += -O2
+endif
 
 LIBS = -lc -lm
 LIBDIR =
@@ -46,14 +57,13 @@ libs = $(BUILD_DIR)/libzcrypto.a
 
 $(BUILD_DIR)/%.elf: %.c $(libs) Makefile
 	$(CC) $(CFLAGS) $< $(libs) $(LDFLAGS) -o $@
-	$(SZ) $@
 
 $(BUILD_DIR)/libzcrypto.a: $(OBJECTS) Makefile
 	ar rcs $@ $(OBJECTS)
 	ranlib $@
 
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
-	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
+	$(CC) -c $(CFLAGS) $< -o $@
 
 $(BUILD_DIR):
 	mkdir $@

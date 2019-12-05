@@ -29,7 +29,7 @@ static void sm4_test () {
     expect_equal("sm4 encrypt", cipher, text1, 16);
     expect_equal("sm4 decrypt", plain, plain2, 16);
 
-    memset(plain2, 0, 32);
+    memset(plain2, 0, 16);
     for (int i = 0; i < 1000000; ++i) {
         sm4_ecb_encrypt(key, 16, plain, cipher);
         memcpy(plain, cipher, 16);
