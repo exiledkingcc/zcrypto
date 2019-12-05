@@ -1,5 +1,4 @@
-#ifndef _Z_CRYPTO_HASH_H_
-#define _Z_CRYPTO_HASH_H_ 1
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,5 +48,3 @@ void hash_hexdigest(hash_ctx_t *ctx, uint8_t *data);
 # ifdef __cplusplus
 }
 # endif
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _Z_CRYPTO_SHA1_H_
-#define _Z_CRYPTO_SHA1_H_ 1
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,5 +24,3 @@ void sha1_blk_update(uint32_t hash[5], const uint8_t blk[64]);
 # ifdef __cplusplus
 }
 # endif
-
-#endif

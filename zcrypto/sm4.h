@@ -1,5 +1,4 @@
-#ifndef _Z_CRYPTO_SM4_H_
-#define _Z_CRYPTO_SM4_H_ 1
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,5 +26,3 @@ void sm4_cipher_block_encrypt(const uint32_t rkey[32], size_t keylen, const uint
 # ifdef __cplusplus
 }
 # endif
-
-#endif

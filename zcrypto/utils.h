@@ -1,5 +1,4 @@
-#ifndef _Z_CRYPTO_UTILS_H_
-#define _Z_CRYPTO_UTILS_H_ 1
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -133,5 +132,3 @@ static inline void _expand_hex(uint8_t *data, size_t len) {
 # ifdef __cplusplus
 }
 # endif
-
-#endif

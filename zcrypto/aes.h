@@ -1,5 +1,4 @@
-#ifndef _Z_CRYPTO_AES_H_
-#define _Z_CRYPTO_AES_H_ 1
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,5 +39,3 @@ void aes_cipher_block_decrypt(const uint32_t *rkey, size_t keylen, const uint8_t
 # ifdef __cplusplus
 }
 # endif
-
-#endif

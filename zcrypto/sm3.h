@@ -1,5 +1,4 @@
-#ifndef _Z_CRYPTO_SM3_H_
-#define _Z_CRYPTO_SM3_H_ 1
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,5 +24,3 @@ void sm3_blk_update(uint32_t hash[8], const uint8_t blk[64]);
 # ifdef __cplusplus
 }
 # endif
-
-#endif

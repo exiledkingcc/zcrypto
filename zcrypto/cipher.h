@@ -1,5 +1,4 @@
-#ifndef _Z_CRYPTO_CIPHER_H_
-#define _Z_CRYPTO_CIPHER_H_ 1
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,5 +37,3 @@ void cipher_operate(cipher_ctx_t *ctx, size_t len, const uint8_t *in, uint8_t *o
 # ifdef __cplusplus
 }
 # endif
-
-#endif
