@@ -1,12 +1,9 @@
 #include <stdio.h>
-#include "zcrypto/cipher.h"
-#include "zcrypto/aes.h"
 #include "zcrypto/hash.h"
 #include "zcrypto/md5.h"
 #include "zcrypto/sha1.h"
 #include "zcrypto/sha256.h"
 #include "zcrypto/sm3.h"
-#include "zcrypto/sm4.h"
 
 static void expect_equal(const char *name, const uint8_t *a, const uint8_t *b, size_t len) {
     if (memcmp(a, b, len) == 0) {

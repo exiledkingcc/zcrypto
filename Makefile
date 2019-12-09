@@ -55,8 +55,8 @@ vpath %.c $(sort $(dir $(SOURCES)))
 all: $(BUILD_DIR)/test_cipher.elf $(BUILD_DIR)/test_hash.elf
 libs = $(BUILD_DIR)/libzcrypto.a
 
-$(BUILD_DIR)/%.elf: %.c $(libs) Makefile
-	$(CC) $(CFLAGS) $< $(libs) $(LDFLAGS) -o $@
+$(BUILD_DIR)/%.elf: test/%.c $(libs) Makefile
+	$(CC) $(CFLAGS) -I. $< $(libs) $(LDFLAGS) -o $@
 
 $(BUILD_DIR)/libzcrypto.a: $(OBJECTS) Makefile
 	ar rcs $@ $(OBJECTS)
