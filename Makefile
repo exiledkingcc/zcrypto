@@ -52,7 +52,7 @@ zcrypto/sm4.c
 OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(SOURCES)))
 
-all: $(BUILD_DIR)/test.elf
+all: $(BUILD_DIR)/test_cipher.elf $(BUILD_DIR)/test_hash.elf
 libs = $(BUILD_DIR)/libzcrypto.a
 
 $(BUILD_DIR)/%.elf: %.c $(libs) Makefile
