@@ -123,8 +123,8 @@ static inline void _expand_hex(uint8_t *data, size_t len) {
     for (size_t i = 0; i < len; ++i) {
         size_t j = len - 1 - i;
         uint8_t x = data[j];
-        data[j * 2] = _hex((x >> 4) & 0xf);
-        data[j * 2 + 1] = _hex(x & 0xf);
+        data[j * 2] = (uint8_t)_hex((x >> 4) & 0xf);
+        data[j * 2 + 1] = (uint8_t)_hex(x & 0xf);
     }
 }
 

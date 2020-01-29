@@ -20,7 +20,7 @@ void _hash_done(hash_blk_update_func blk_update, uint32_t *hash, const uint8_t *
 } while (0)
 
 #define _hash_digest(EE, HASH, LEN, DATA)  do { \
-    for (int i = 0; i < LEN; ++i) { \
+    for (size_t i = 0; i < LEN; ++i) { \
         _store_##EE##_u32(HASH[i], DATA + i * 4); \
     } \
 } while (0)
@@ -35,8 +35,8 @@ typedef struct {
     uint64_t len;
     uint32_t hash[8];
     uint8_t blk[64];
+    size_t hlen;
     int alg;
-    int hlen;
 } hash_ctx_t;
 
 void hash_init(hash_ctx_t *ctx, int alg);

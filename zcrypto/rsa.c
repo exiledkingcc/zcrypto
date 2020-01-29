@@ -7,8 +7,8 @@
 #include <stdio.h>
 
 static void _debug(const char *name, const uint32_t *data, size_t len) {
-    static char text[RSA_BYTES + 4];
-    for (size_t i = len - 1; i < len; --i) {
+    static char text[RSA_BYTES * 2 + 2];
+    for (size_t i = 0; i < len; ++i) {
         size_t j = (len - 1 - i) * 8;
         uint32_t x = data[i];
         text[j] = _hex((x >> 28) & 0xf);
@@ -90,7 +90,7 @@ static void _sub(uint32_t *X, const uint32_t *Y, size_t n) {
         X[i] = c.i32.low;
     }
     if (c.i32.high < 0) {
-        X[n] += c.i32.high;
+        X[n] += (uint32_t)c.i32.high;
     }
 }
 
@@ -148,8 +148,8 @@ static void _mod(uint32_t *X, size_t m, const uint32_t *Y, size_t n) {
 
 // X = A * R % C; R = (2^32) ^ RSA_SIZE
 static void _modx(uint32_t *X, const uint32_t *C, const uint32_t *A) {
-    uint32_t dd[RSA_SIZE * 2];
-    _zeros(dd, RSA_SIZE * 2);
+    uint32_t dd[RSA_SIZE * 2 + 1];
+    _zeros(dd, RSA_SIZE * 2 + 1);
     _copy(dd + RSA_SIZE, A, RSA_SIZE);
     _mod(dd, RSA_SIZE * 2, C, RSA_SIZE);
     _copy(X, dd, RSA_SIZE);

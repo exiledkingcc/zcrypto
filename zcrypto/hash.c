@@ -10,7 +10,7 @@ void _hash_update(hash_blk_update_func blk_update, uint32_t *hash, uint8_t *blk,
     }
     *total += len;
     if (p < end) {
-        memcpy(blk, p, end - p);
+        memcpy(blk, p, (size_t)(end - p));
     }
 }
 

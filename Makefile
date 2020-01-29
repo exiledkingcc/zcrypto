@@ -24,7 +24,8 @@ endif
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
 
-CFLAGS = -Wall -Wextra -std=c11
+WARNS = -Wall -Wextra -Wuninitialized -Wsign-conversion
+CFLAGS = -std=c11 $(WARNS)
 
 ifeq ($(DEBUG), 1)
 CFLAGS += -g

@@ -13,14 +13,14 @@ static void expect_equal(const char *name, const uint32_t *a, const uint32_t *b,
 
 static inline uint32_t hex2num(char c) {
     if (c >= 'a') {
-        return c - 'a' + 10;
+        return (uint32_t)(c - 'a' + 10);
     } else {
-        return c - '0';
+        return (uint32_t)(c - '0');
     }
 }
 
 static void str2bignum(uint32_t n[RSA_SIZE], const char *text) {
-    for (size_t i = RSA_SIZE - 1; i < RSA_SIZE; --i) {
+    for (size_t i = 0; i < RSA_SIZE; ++i) {
         size_t j = (RSA_SIZE - 1 - i) * 8;
         uint32_t x = hex2num(text[j]);
         x <<= 4; x |= hex2num(text[j + 1]);
@@ -67,7 +67,10 @@ int main() {
             const char *p = find_start(line);
             str2bignum(M, p);
 
-            fgets(line, sizeof(line), stdin);
+            if (fgets(line, sizeof(line), stdin) == NULL) {
+                printf("expected C NOT found\n");
+                break;
+            }
             if (line[0] != 'C') {
                 break;
             }
