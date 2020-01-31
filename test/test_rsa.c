@@ -1,13 +1,16 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "zcrypto/rsa.h"
 
-static void expect_equal(const char *name, const uint32_t *a, const uint32_t *b, size_t len) {
+static bool expect_equal(const char *name, const uint32_t *a, const uint32_t *b, size_t len) {
     if (memcmp(a, b, len * sizeof(uint32_t)) == 0) {
-        printf("%s OK!\n", name);
+        // printf("%s OK!\n", name);
+        return true;
     } else {
         printf("%s FAIL!\n", name);
+        return false;
     }
 }
 
@@ -50,6 +53,7 @@ int main() {
     uint32_t C2[RSA_SIZE];
 
     char line[RSA_BITS / 4 + 32];
+    int err = 0;
     for (;;) {
         if (feof(stdin)) {
             break;
@@ -78,7 +82,10 @@ int main() {
             str2bignum(C, p);
 
             rsa_pub_naive(&rsa, M, C2);
-            expect_equal("rsa_pub_naive", C, C2, RSA_SIZE);
+            if (!expect_equal("rsa_pub_naive", C, C2, RSA_SIZE)) {
+                ++err;
+            }
         }
     }
+    printf("ERROR: %d\n", err);
 }

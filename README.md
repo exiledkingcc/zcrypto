@@ -74,3 +74,4 @@ use `rsa_pub_naive` for RSA pulic key enrypt/decrypt. see `test/test_rsa.c` for 
 因为这个库的设计是，把密钥直接写在代码里面，或者很简单读取（无法保密），因此这里不能够使用私钥。
 
 使用`rsa_pub_naive`进行公钥的运算，具体使用请看`test/test_rsa.c`。
+使用`./test/rsa_naive_test.py | ./build/test_rsa.elf`进行测试。
