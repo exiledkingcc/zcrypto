@@ -131,18 +131,29 @@ static void _mod(uint32_t *X, size_t m, const uint32_t *Y, size_t n) {
 
     m = _len(X, m);
     n = _len(Y, n);
+    uint64_t yy = ((uint64_t)Y[n - 1] << 32) + Y[n - 2];
     uint32_t *px = X + m - n;
     while (px >= X) {
-        uint64_t a = (uint64_t)px[n] << 32;
-        a += px[n - 1];
-        uint32_t b = a / Y[n - 1];
+        if (px[n] == 0 && _cmp(px, Y, n) < 0) {
+            --px;
+            continue;
+        }
+        uint32_t b = 0;
+        if (px[n] > 0) {
+            uint64_t a = ((uint64_t)px[n] << 32) + px[n - 1];
+            b = a / Y[n - 1];
+        } else {
+            uint64_t a = ((uint64_t)px[n - 1] << 32) + px[n - 2];
+            b = a / yy;
+        }
         _copy(dd, Y, n);
-        _mul1(dd, b, n);
-        if (_cmp(px, dd, n + 1) < 0) {
+        if (b > 1) {
+            _mul1(dd, b, n);
+        }
+        while (_cmp(px, dd, n + 1) < 0) {
             _sub(dd, Y, n);
         }
         _sub(px, dd, n + 1);
-        --px;
     }
 }
 

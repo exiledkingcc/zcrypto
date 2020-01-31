@@ -17,7 +17,7 @@ print("N =", n)
 print()
 
 print("## tests:")
-for i in range(100):
+for i in range(10000):
     m = "0x00" + "".join(["{:02x}".format(random.randint(0, 255)) for _ in range(LEN - 1)])
     c = key.encrypt(int(m, 16), "")
     c = hex(c[0])
