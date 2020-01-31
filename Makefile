@@ -45,6 +45,7 @@ zcrypto/cipher.c \
 zcrypto/aes.c \
 zcrypto/hash.c \
 zcrypto/md5.c \
+zcrypto/oaep.c \
 zcrypto/rsa.c \
 zcrypto/sha1.c \
 zcrypto/sha256.c \
@@ -54,7 +55,7 @@ zcrypto/sm4.c
 OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(SOURCES)))
 
-all: $(BUILD_DIR)/test_cipher.elf $(BUILD_DIR)/test_hash.elf $(BUILD_DIR)/test_rsa.elf
+all: $(BUILD_DIR)/test_cipher.elf $(BUILD_DIR)/test_hash.elf $(BUILD_DIR)/test_oaep.elf $(BUILD_DIR)/test_rsa.elf
 libs = $(BUILD_DIR)/libzcrypto.a
 
 $(BUILD_DIR)/%.elf: test/%.c $(libs) Makefile

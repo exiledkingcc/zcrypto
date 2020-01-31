@@ -63,9 +63,9 @@ see `test/test_hash.c` for details.
 
 Do **NOT** support private key. it's designed to keep key just in the code or somewhere easy to read, so you should **NOT** use private key there.
 
-use `rsa_pub_naive` for RSA pulic key enrypt/decrypt. see `test/test_rsa.c` for details.
+use `rsa_pub_naive` for RSA pulic key enrypt/decrypt. see `test/test_rsa.c` for how to use. use `rsa_pub_naive./test/rsa_naive_test.py | ./build/test_rsa.elf` for test.
 
-*TODO： OAEP padding*
+use `rsa_pub_oaep_encrypt` for `RSAES-OAEP` operation，see [RFC8017](https://tools.ietf.org/html/rfc8017#section-7.1) for reference. see `test/test_oaep.c` for how to use. use `./test/rsa_oaep_test.py gen | ./build/test_oaep.elf | ./test/rsa_oaep_test.py verify` for test.
 
 ---
 **非对称密钥算法**
@@ -75,3 +75,6 @@ use `rsa_pub_naive` for RSA pulic key enrypt/decrypt. see `test/test_rsa.c` for 
 
 使用`rsa_pub_naive`进行公钥的运算，具体使用请看`test/test_rsa.c`。
 使用`./test/rsa_naive_test.py | ./build/test_rsa.elf`进行测试。
+
+使用`rsa_pub_oaep_encrypt`进行`RSAES-OAEP`运算，请参考[RFC8017](https://tools.ietf.org/html/rfc8017#section-7.1)。
+具体使用请看`test/test_oaep.c`。 使用`./test/rsa_oaep_test.py gen | ./build/test_oaep.elf | ./test/rsa_oaep_test.py verify`进行测试。
