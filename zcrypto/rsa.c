@@ -147,6 +147,7 @@ static void _mod(uint32_t *X, size_t m, const uint32_t *Y, size_t n) {
             b = a / yy;
         }
         _copy(dd, Y, n);
+        dd[n] = 0;
         if (b > 1) {
             _mul1(dd, b, n);
         }
