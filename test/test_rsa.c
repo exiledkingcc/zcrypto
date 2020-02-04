@@ -49,11 +49,12 @@ static const char * find_start(const char *text) {
 int main() {
     rsa_ctx_t rsa;
     uint32_t M[RSA_SIZE];
+    uint32_t M2[RSA_SIZE];
     uint32_t C[RSA_SIZE];
     uint32_t C2[RSA_SIZE];
 
     char line[RSA_BITS / 4 + 32];
-    int err = 0;
+    int cnt = 0, err1 = 0, err2 = 0;
     for (;;) {
         if (feof(stdin)) {
             break;
@@ -64,6 +65,9 @@ int main() {
         if (line[0] == 'E') {
             const char *p = find_start(line);
             rsa.E = strtoul(p, NULL, 16);
+        } else if (line[0] == 'D') {
+            const char *p = find_start(line);
+            str2bignum(rsa.D, p);
         } else if (line[0] == 'N') {
             const char *p = find_start(line);
             str2bignum(rsa.N, p);
@@ -80,12 +84,19 @@ int main() {
             }
             p = find_start(line);
             str2bignum(C, p);
+            ++cnt;
 
             rsa_pub_naive(&rsa, M, C2);
             if (!expect_equal("rsa_pub_naive", C, C2, RSA_SIZE)) {
-                ++err;
+                ++err1;
             }
+
+            rsa_pri_naive(&rsa, C2, M2);
+            if (!expect_equal("rsa_pri_naive", M, M2, RSA_SIZE)) {
+                ++err2;
+            }
+            printf("%d ok\n", cnt);
         }
     }
-    printf("ERROR: %d\n", err);
+    printf("COUNT: %d, ERROR: %d %d\n", cnt, err1, err2);
 }

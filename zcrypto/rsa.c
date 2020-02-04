@@ -264,6 +264,7 @@ static void _exp_mod(uint32_t X[RSA_SIZE], const uint32_t C[RSA_SIZE], const uin
     for (int j = blen - 1; j >= 0; --j) {
         if (B[j] != 0) {
             idx = _highest_bit_idx(B[j]) + j * 32;
+            break;
         }
     }
     for (int i = idx - 1; i >= 0; --i) {
@@ -282,7 +283,13 @@ static void _exp_mod(uint32_t X[RSA_SIZE], const uint32_t C[RSA_SIZE], const uin
     _montgomery(X, C, px, py, m);
 }
 
-void rsa_pub_naive(const rsa_ctx_t *ctx, const uint32_t plain[RSA_SIZE], uint32_t cipher[RSA_SIZE]) {
+void rsa_pub_naive(const rsa_ctx_t *ctx, const uint32_t data[RSA_SIZE], uint32_t output[RSA_SIZE]) {
     uint32_t B[1] = {ctx->E};
-    _exp_mod(cipher, ctx->N, plain, B, 1);
+    _exp_mod(output, ctx->N, data, B, 1);
 }
+
+#if ENABLE_RSA_PRIVATE_KEY
+void rsa_pri_naive(const rsa_ctx_t *ctx, const uint32_t data[RSA_SIZE], uint32_t output[RSA_SIZE]) {
+    _exp_mod(output, ctx->N, data, ctx->D, RSA_SIZE);
+}
+#endif
