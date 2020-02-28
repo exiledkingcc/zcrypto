@@ -36,6 +36,28 @@ void aes_cipher_gen_key(const uint8_t *key, size_t keylen, uint32_t *rkey, bool 
 void aes_cipher_block_encrypt(const uint32_t *rkey, size_t keylen, const uint8_t *plain, uint8_t *cipher);
 void aes_cipher_block_decrypt(const uint32_t *rkey, size_t keylen, const uint8_t *cipher, uint8_t *plain);
 
+
+#define AES_ECB_MODE 1
+#define AES_CBC_MODE 2
+#define AES_CFB_MODE 3
+#define AES_OFB_MODE 4
+
+#define AES_ENCRYPT 0x10
+#define AES_DECRYPT 0x20
+
+typedef struct {
+    uint32_t rkey[60];
+    uint8_t iv[16];
+    size_t keylen;
+    uint8_t mode;
+} aes_ctx_t;
+
+void aes_close(aes_ctx_t *ctx);
+int aes_init(aes_ctx_t *ctx, uint8_t mode, size_t keylen, const uint8_t *key, const uint8_t iv[16]);
+int aes_encrypt(aes_ctx_t *ctx, size_t len, const uint8_t *plain, uint8_t *cipher);
+int aes_decrypt(aes_ctx_t *ctx, size_t len, const uint8_t *cipher, uint8_t *plain);
+
+
 # ifdef __cplusplus
 }
 # endif
