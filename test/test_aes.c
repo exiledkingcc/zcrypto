@@ -84,19 +84,20 @@ static void aes_ctx_test(int mode, const char* name) {
         aes_close(&ctx_de);
 
         size_t keylen = keylens[i];
-        int r = aes_init(&ctx_en, mode | AES_ENCRYPT, keylen, key, iv);
+        int r = aes_init(&ctx_en, mode, keylen, key, iv);
         if (r != 0) {
             printf("aes_init(%s | AES_ENCRYPT, %ld) FAIL!\n", name, keylen);
             continue;
         }
 
-        r = aes_init(&ctx_de, mode | AES_DECRYPT, keylen, key, iv);
+        r = aes_init(&ctx_de, mode, keylen, key, iv);
         if (r != 0) {
             printf("aes_init(%s | AES_DECRYPT, %ld) FAIL!\n", name, keylen);
             continue;
         }
 
-        r = aes_encrypt(&ctx_en, 32, p1, c1);
+        r = aes_encrypt(&ctx_en, 16, p1, c1);
+        r = aes_encrypt(&ctx_en, 16, p1 + 16, c1 + 16);
         if (r != 0) {
             printf("aes_encrypt(%s, %ld) FAIL!\n", name, keylen);
             continue;

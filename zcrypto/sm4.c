@@ -249,53 +249,25 @@ void sm4_ofb_decrypt(const uint8_t key[16], const uint8_t iv[16], size_t len, co
 }
 
 
-void sm4_cipher_gen_key(const uint8_t key[16], size_t keylen, uint32_t rkey[32], bool decrypt) {
-    (void)keylen;
-    sm4_calc_key(key, rkey);
-    if (decrypt) {
-        sm4_rev_key(rkey);
-    }
-}
-
-void sm4_cipher_block_encrypt(const uint32_t rkey[32], size_t keylen, const uint8_t *plain, uint8_t *cipher) {
-    (void)keylen;
-    sm4_calc_block(rkey, plain, cipher);
-}
-
-
-static inline bool _is_encrypt(const sm4_ctx_t *ctx) {
-    return (ctx->mode & 0xf0) == SM4_ENCRYPT;
-}
-
-static inline bool _is_decrypt(const sm4_ctx_t *ctx) {
-    return (ctx->mode & 0xf0) == SM4_DECRYPT;
-}
-
+#define SM4_ENCRYPT 0x10
+#define SM4_DECRYPT 0x20
 
 void sm4_close(sm4_ctx_t *ctx) {
     memset(ctx, 0, sizeof(sm4_ctx_t));
 }
 
 int sm4_init(sm4_ctx_t *ctx, uint8_t mode, const uint8_t key[16], const uint8_t iv[16]) {
-    uint8_t m0 = mode & 0x0f;
-    uint8_t m1 = mode & 0xf0;
-    if (m0 < SM4_ECB_MODE || m0 > SM4_OFB_MODE) {
+    if (mode < SM4_ECB_MODE || mode > SM4_OFB_MODE) {
         return -1;
     }
-    if (m0 == SM4_ECB_MODE && iv != NULL) {
+    if (mode == SM4_ECB_MODE && iv != NULL) {
         return -1;
     }
-    if (m0 != SM4_ECB_MODE && iv == NULL) {
-        return -1;
-    }
-    if (m1 != SM4_ENCRYPT && m1 != SM4_DECRYPT) {
+    if (mode != SM4_ECB_MODE && iv == NULL) {
         return -1;
     }
     ctx->mode = mode;
     sm4_calc_key(key, ctx->rkey);
-    if (_is_decrypt(ctx) && m0 != SM4_CFB_MODE && m0 != SM4_OFB_MODE) {
-        sm4_rev_key(ctx->rkey);
-    }
     if (iv != NULL) {
         memcpy(ctx->iv, iv, 16);
     } else {
@@ -305,9 +277,13 @@ int sm4_init(sm4_ctx_t *ctx, uint8_t mode, const uint8_t key[16], const uint8_t 
 }
 
 int sm4_encrypt(sm4_ctx_t *ctx, size_t len, const uint8_t *plain, uint8_t *cipher) {
-    if (!_is_encrypt(ctx)) {
+    if ((ctx->mode & 0xf0) == 0) {
+        ctx->mode |= SM4_ENCRYPT;
+    }
+    if ((ctx->mode & 0xf0) != SM4_ENCRYPT) {
         return -1;
     }
+
     uint8_t m = ctx->mode & 0x0f;
     if (m == SM4_ECB_MODE) {
         _ecb(ctx->rkey, len, plain, cipher);
@@ -324,10 +300,17 @@ int sm4_encrypt(sm4_ctx_t *ctx, size_t len, const uint8_t *plain, uint8_t *ciphe
 }
 
 int sm4_decrypt(sm4_ctx_t *ctx, size_t len, const uint8_t *cipher, uint8_t *plain) {
-    if (!_is_decrypt(ctx)) {
+    uint8_t m = ctx->mode & 0x0f;
+    if ((ctx->mode & 0xf0) == 0) {
+        ctx->mode |= SM4_DECRYPT;
+        if (m != SM4_CFB_MODE && m != SM4_OFB_MODE) {
+            sm4_rev_key(ctx->rkey);
+        }
+    }
+    if ((ctx->mode & 0xf0) != SM4_DECRYPT) {
         return -1;
     }
-    uint8_t m = ctx->mode & 0x0f;
+
     if (m == SM4_ECB_MODE) {
         _ecb(ctx->rkey, len, cipher, plain);
     } else if (m == SM4_CBC_MODE) {

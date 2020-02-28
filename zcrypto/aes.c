@@ -374,27 +374,8 @@ static inline int _get_round(size_t keylen) {
 }
 
 
-void aes_cipher_gen_key(const uint8_t *key, size_t keylen, uint32_t *rkey, bool decrypt) {
-    (void)decrypt;
-    aes_set_key(key, keylen, _get_round(keylen), rkey);
-}
-
-void aes_cipher_block_encrypt(const uint32_t *rkey, size_t keylen, const uint8_t *plain, uint8_t *cipher) {
-    aes_blk_encrypt(rkey, _get_round(keylen), plain, cipher);
-}
-
-void aes_cipher_block_decrypt(const uint32_t *rkey, size_t keylen, const uint8_t *cipher, uint8_t *plain) {
-    aes_blk_decrypt(rkey, _get_round(keylen), cipher, plain);
-}
-
-
-static inline bool _is_encrypt(const aes_ctx_t *ctx) {
-    return (ctx->mode & 0xf0) == AES_ENCRYPT;
-}
-
-static inline bool _is_decrypt(const aes_ctx_t *ctx) {
-    return (ctx->mode & 0xf0) == AES_DECRYPT;
-}
+#define AES_ENCRYPT 0x10
+#define AES_DECRYPT 0x20
 
 static inline int _round(size_t keylen) {
     return keylen / 32 + 6;
@@ -408,18 +389,13 @@ int aes_init(aes_ctx_t *ctx, uint8_t mode, size_t keylen, const uint8_t *key, co
     if (keylen != 128 && keylen != 192 && keylen != 256) {
         return -1;
     }
-    uint8_t m0 = mode & 0x0f;
-    uint8_t m1 = mode & 0xf0;
-    if (m0 < AES_ECB_MODE || m0 > AES_OFB_MODE) {
+    if (mode < AES_ECB_MODE || mode > AES_OFB_MODE) {
         return -1;
     }
-    if (m0 == AES_ECB_MODE && iv != NULL) {
+    if (mode == AES_ECB_MODE && iv != NULL) {
         return -1;
     }
-    if (m0 != AES_ECB_MODE && iv == NULL) {
-        return -1;
-    }
-    if (m1 != AES_ENCRYPT && m1 != AES_DECRYPT) {
+    if (mode != AES_ECB_MODE && iv == NULL) {
         return -1;
     }
     ctx->keylen = keylen;
@@ -434,9 +410,13 @@ int aes_init(aes_ctx_t *ctx, uint8_t mode, size_t keylen, const uint8_t *key, co
 }
 
 int aes_encrypt(aes_ctx_t *ctx, size_t len, const uint8_t *plain, uint8_t *cipher) {
-    if (!_is_encrypt(ctx)) {
+    if ((ctx->mode & 0xf0) == 0) {
+        ctx->mode |= AES_ENCRYPT;
+    }
+    if ((ctx->mode & 0xf0) != AES_ENCRYPT) {
         return -1;
     }
+
     int rd = _round(ctx->keylen);
     uint8_t m = ctx->mode & 0x0f;
     if (m == AES_ECB_MODE) {
@@ -454,9 +434,13 @@ int aes_encrypt(aes_ctx_t *ctx, size_t len, const uint8_t *plain, uint8_t *ciphe
 }
 
 int aes_decrypt(aes_ctx_t *ctx, size_t len, const uint8_t *cipher, uint8_t *plain) {
-    if (!_is_decrypt(ctx)) {
+    if ((ctx->mode & 0xf0) == 0) {
+        ctx->mode |= AES_DECRYPT;
+    }
+    if ((ctx->mode & 0xf0) != AES_DECRYPT) {
         return -1;
     }
+
     int rd = _round(ctx->keylen);
     uint8_t m = ctx->mode & 0x0f;
     if (m == AES_ECB_MODE) {
