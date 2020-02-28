@@ -16,23 +16,23 @@ a minimal crypto lib for limited environment like STM32.
 
 api has two styles:
 * `aes_{keylen}_{mode}_{en/de}crypt` / `sm4_{mode}_{en/de}crypt`
-* `cipher_init` / `cipher_operate`
+* `aes_{en/de}crypt(aes_ctx_t*, ...)` / `sm4_{en/de}crypt(sm4_ctx_t*, ...)`
 
 the first style api do **only once** encryption or decryption. but for the second style api,
-you can call `cipher_operate` multiple times and to encryption(decryption) for stream data.
+you can call `{aes/sm4}_{en/de}crypt` multiple times and to encryption(decryption) for stream data.
 
-for both two style apis, you should do the padding your self, and make sure the input data length
-**exactly queals to** the block size (aka 16bytes).
+for both two style apis, you should do the padding yourself, and make sure the input data length
+**exactly** multiple of the block size (aka 16bytes).
 
-see `test/test_cipher.c` for details.
+see `test/test_{aes/sm4}.c` for details.
 
 ---
 **分组密码**
 
 支持：AES（192、169，256）， SM4，模式支持ECB，CBC，CFB，OFB。
-支持两种风格的API。一种是：`aes_{keylen}_{mode}_{en/de}crypt`和`sm4_{mode}_{en/de}crypt`，
-这是做一次性加密（解密）的。另一种是`cipher_init`和`cipher_operate`，这个`cipher_operate`可以调用多次，
-对流数据进行加密（解密）。具体使用请看`test/test_cipher.c`。
+支持两种风格的API。一种是：`aes_{keylen}_{mode}_{en/de}crypt`和`sm4_{mode}_{en/de}crypt`，这是做一次性加密（解密）的。
+另一种是`aes_{en/de}crypt(aes_ctx_t*, ...)`和`sm4_{en/de}crypt(sm4_ctx_t*, ...)`，这种可以调用多次，
+对流数据进行加密（解密）。具体使用请看`test/test_{aes/sm4}.c`。
 
 ## hash
 * SM3
