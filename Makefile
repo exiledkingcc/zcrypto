@@ -41,7 +41,6 @@ LDFLAGS = $(LIBDIR) $(LIBS)
 BUILD_DIR = build
 
 SOURCES = \
-zcrypto/cipher.c \
 zcrypto/aes.c \
 zcrypto/hash.c \
 zcrypto/md5.c \
