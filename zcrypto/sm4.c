@@ -130,12 +130,58 @@ static void sm4_calc_block(const uint32_t rkey[32], const uint8_t in[16], uint8_
     // memset(x, 0, sizeof(x));
 }
 
+
+static inline void _ecb(const uint32_t *rkey, size_t len, const uint8_t *in, uint8_t *out) {
+    for (size_t i = 0; i < len; i += 16) {
+        sm4_calc_block(rkey, in + i, out + i);
+    }
+}
+
+static inline void _cbc_encrypt(const uint32_t *rkey, uint8_t *iv, size_t len, const uint8_t *plain, uint8_t *cipher) {
+    for (size_t i = 0; i < len; i += 16) {
+        _xor_block(iv, plain + i, 16);
+        sm4_calc_block(rkey, iv, cipher + i);
+        memcpy(iv, cipher + i, 16);
+    }
+}
+
+static inline void _cbc_decrypt(const uint32_t *rkey, uint8_t *iv, size_t len, const uint8_t *cipher, uint8_t *plain) {
+    for (size_t i = 0; i < len; i += 16) {
+        sm4_calc_block(rkey, cipher + i, plain + i);
+        _xor_block(plain + i, iv, 16);
+        memcpy(iv, cipher + i, 16);
+    }
+}
+
+static inline void _cfb_encrypt(const uint32_t *rkey, uint8_t *iv, size_t len, const uint8_t *plain, uint8_t *cipher) {
+    for (size_t i = 0; i < len; i += 16) {
+        sm4_calc_block(rkey, iv, cipher + i);
+        _xor_block(cipher + i, plain + i, 16);
+        memcpy(iv, cipher + i, 16);
+    }
+}
+
+static inline void _cfb_decrypt(const uint32_t *rkey, uint8_t *iv, size_t len, const uint8_t *cipher, uint8_t *plain) {
+    for (size_t i = 0; i < len; i += 16) {
+        sm4_calc_block(rkey, iv, plain + i);
+        _xor_block(plain + i, cipher + i, 16);
+        memcpy(iv, cipher + i, 16);
+    }
+}
+
+static inline void _ofb(const uint32_t *rkey, uint8_t *iv, size_t len, const uint8_t *in, uint8_t *out) {
+    for (size_t i = 0; i < len; i += 16) {
+        sm4_calc_block(rkey, iv, out + i);
+        memcpy(iv, out + i, 16);
+        _xor_block(out + i, in + i, 16);
+    }
+}
+
+
 void sm4_ecb_encrypt(const uint8_t key[16], size_t len, const uint8_t *plain, uint8_t *cipher) {
     uint32_t rkey[32];
     sm4_calc_key(key, rkey);
-    for (size_t i = 0; i < len; i += 16) {
-        sm4_calc_block(rkey, plain + i, cipher + i);
-    }
+    _ecb(rkey, len, plain, cipher);
     // memset(rkey, 0, sizeof(rkey));
 }
 
@@ -143,9 +189,7 @@ void sm4_ecb_decrypt(const uint8_t key[16], size_t len, const uint8_t *cipher, u
     uint32_t rkey[32];
     sm4_calc_key(key, rkey);
     sm4_rev_key(rkey);
-    for (size_t i = 0; i < len; i += 16) {
-        sm4_calc_block(rkey, cipher + i, plain + i);
-    }
+    _ecb(rkey, len, cipher, plain);
     // memset(rkey, 0, sizeof(rkey));
 }
 
@@ -154,11 +198,7 @@ void sm4_cbc_encrypt(const uint8_t key[16], const uint8_t iv[16], size_t len, co
     sm4_calc_key(key, rkey);
     uint8_t out[16];
     memcpy(out, iv, 16);
-    for (size_t i = 0; i < len; i += 16) {
-        _xor_block(out, plain + i, 16);
-        sm4_calc_block(rkey, out, cipher + i);
-        memcpy(out, cipher + i, 16);
-    }
+    _cbc_encrypt(rkey, out, len, plain, cipher);
     // memset(rkey, 0, sizeof(rkey));
     // memset(out, 0, sizeof(out));
 }
@@ -169,11 +209,7 @@ void sm4_cbc_decrypt(const uint8_t key[16], const uint8_t iv[16], size_t len, co
     sm4_rev_key(rkey);
     uint8_t out[16];
     memcpy(out, iv, 16);
-    for (size_t i = 0; i < len; i += 16) {
-        sm4_calc_block(rkey, cipher + i, plain + i);
-        _xor_block(plain + i, out, 16);
-        memcpy(out, cipher + i, 16);
-    }
+    _cbc_decrypt(rkey, out, len, cipher, plain);
     // memset(rkey, 0, sizeof(rkey));
     // memset(out, 0, sizeof(out));
 }
@@ -183,11 +219,7 @@ void sm4_cfb_encrypt(const uint8_t key[16], const uint8_t iv[16], size_t len, co
     sm4_calc_key(key, rkey);
     uint8_t out[16];
     memcpy(out, iv, 16);
-    for (size_t i = 0; i < len; i += 16) {
-        sm4_calc_block(rkey, out, cipher + i);
-        _xor_block(cipher + i, plain + i, 16);
-        memcpy(out, cipher + i, 16);
-    }
+    _cfb_encrypt(rkey, out, len, plain, cipher);
     // memset(rkey, 0, sizeof(rkey));
     // memset(out, 0, sizeof(out));
 }
@@ -197,11 +229,7 @@ void sm4_cfb_decrypt(const uint8_t key[16], const uint8_t iv[16], size_t len, co
     sm4_calc_key(key, rkey);
     uint8_t out[16];
     memcpy(out, iv, 16);
-    for (size_t i = 0; i < len; i += 16) {
-        sm4_calc_block(rkey, out, plain + i);
-        _xor_block(plain + i, cipher + i, 16);
-        memcpy(out, cipher + i, 16);
-    }
+    _cfb_decrypt(rkey, out, len, cipher, plain);
     // memset(rkey, 0, sizeof(rkey));
     // memset(out, 0, sizeof(out));
 }
@@ -211,11 +239,7 @@ void sm4_ofb_encrypt(const uint8_t key[16], const uint8_t iv[16], size_t len, co
     sm4_calc_key(key, rkey);
     uint8_t out[16];
     memcpy(out, iv, 16);
-    for (size_t i = 0; i < len; i += 16) {
-        sm4_calc_block(rkey, out, cipher + i);
-        memcpy(out, cipher + i, 16);
-        _xor_block(cipher + i, plain + i, 16);
-    }
+    _ofb(rkey, out, len, plain, cipher);
     // memset(rkey, 0, sizeof(rkey));
     // memset(out, 0, sizeof(out));
 }
@@ -236,4 +260,84 @@ void sm4_cipher_gen_key(const uint8_t key[16], size_t keylen, uint32_t rkey[32],
 void sm4_cipher_block_encrypt(const uint32_t rkey[32], size_t keylen, const uint8_t *plain, uint8_t *cipher) {
     (void)keylen;
     sm4_calc_block(rkey, plain, cipher);
+}
+
+
+static inline bool _is_encrypt(const sm4_ctx_t *ctx) {
+    return (ctx->mode & 0xf0) == SM4_ENCRYPT;
+}
+
+static inline bool _is_decrypt(const sm4_ctx_t *ctx) {
+    return (ctx->mode & 0xf0) == SM4_DECRYPT;
+}
+
+
+void sm4_close(sm4_ctx_t *ctx) {
+    memset(ctx, 0, sizeof(sm4_ctx_t));
+}
+
+int sm4_init(sm4_ctx_t *ctx, uint8_t mode, const uint8_t key[16], const uint8_t iv[16]) {
+    uint8_t m0 = mode & 0x0f;
+    uint8_t m1 = mode & 0xf0;
+    if (m0 < SM4_ECB_MODE || m0 > SM4_OFB_MODE) {
+        return -1;
+    }
+    if (m0 == SM4_ECB_MODE && iv != NULL) {
+        return -1;
+    }
+    if (m0 != SM4_ECB_MODE && iv == NULL) {
+        return -1;
+    }
+    if (m1 != SM4_ENCRYPT && m1 != SM4_DECRYPT) {
+        return -1;
+    }
+    ctx->mode = mode;
+    sm4_calc_key(key, ctx->rkey);
+    if (_is_decrypt(ctx) && m0 != SM4_CFB_MODE && m0 != SM4_OFB_MODE) {
+        sm4_rev_key(ctx->rkey);
+    }
+    if (iv != NULL) {
+        memcpy(ctx->iv, iv, 16);
+    } else {
+        memset(ctx->iv, 0, 16);
+    }
+    return 0;
+}
+
+int sm4_encrypt(sm4_ctx_t *ctx, size_t len, const uint8_t *plain, uint8_t *cipher) {
+    if (!_is_encrypt(ctx)) {
+        return -1;
+    }
+    uint8_t m = ctx->mode & 0x0f;
+    if (m == SM4_ECB_MODE) {
+        _ecb(ctx->rkey, len, plain, cipher);
+    } else if (m == SM4_CBC_MODE) {
+        _cbc_encrypt(ctx->rkey, ctx->iv, len, plain, cipher);
+    } else if (m == SM4_CFB_MODE) {
+        _cfb_encrypt(ctx->rkey, ctx->iv, len, plain, cipher);
+    } else if (m == SM4_OFB_MODE) {
+        _ofb(ctx->rkey, ctx->iv, len, plain, cipher);
+    } else {
+        return -1;
+    }
+    return 0;
+}
+
+int sm4_decrypt(sm4_ctx_t *ctx, size_t len, const uint8_t *cipher, uint8_t *plain) {
+    if (!_is_decrypt(ctx)) {
+        return -1;
+    }
+    uint8_t m = ctx->mode & 0x0f;
+    if (m == SM4_ECB_MODE) {
+        _ecb(ctx->rkey, len, cipher, plain);
+    } else if (m == SM4_CBC_MODE) {
+        _cbc_decrypt(ctx->rkey, ctx->iv, len, cipher, plain);
+    } else if (m == SM4_CFB_MODE) {
+        _cfb_decrypt(ctx->rkey, ctx->iv, len, cipher, plain);
+    } else if (m == SM4_OFB_MODE) {
+        _ofb(ctx->rkey, ctx->iv, len, cipher, plain);
+    } else {
+        return -1;
+    }
+    return 0;
 }
