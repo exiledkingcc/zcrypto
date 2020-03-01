@@ -21,10 +21,12 @@ void sm4_ofb_encrypt(const uint8_t key[16], const uint8_t iv[16], size_t len, co
 void sm4_ofb_decrypt(const uint8_t key[16], const uint8_t iv[16], size_t len, const uint8_t *cipher, uint8_t *plain);
 
 
+#define SM4_MIN_MODE SM4_ECB_MODE
 #define SM4_ECB_MODE 1
 #define SM4_CBC_MODE 2
 #define SM4_CFB_MODE 3
 #define SM4_OFB_MODE 4
+#define SM4_MAX_MODE SM4_OFB_MODE
 
 typedef struct {
     uint32_t rkey[32];
