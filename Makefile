@@ -43,6 +43,7 @@ BUILD_DIR = build
 SOURCES = \
 zcrypto/aes.c \
 zcrypto/hash.c \
+zcrypto/hashlib.c \
 zcrypto/md5.c \
 zcrypto/oaep.c \
 zcrypto/rsa.c \
