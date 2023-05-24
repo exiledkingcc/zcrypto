@@ -1,6 +1,6 @@
 #include <string.h>
-#include "rsa.h"
-#include "utils.h"
+#include "zcrypto/rsa.h"
+#include "zcrypto/utils.h"
 
 #define DEBUG_DUMP 0
 #if DEBUG_DUMP

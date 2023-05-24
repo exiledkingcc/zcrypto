@@ -1,5 +1,5 @@
-#include "sm4.h"
-#include "utils.h"
+#include "zcrypto/sm4.h"
+#include "zcrypto/utils.h"
 
 static const uint8_t SBOX[256] = {
 	0xd6, 0x90, 0xe9, 0xfe, 0xcc, 0xe1, 0x3d, 0xb7,

@@ -1,6 +1,6 @@
-#include "md5.h"
-#include "hash.h"
-#include "utils.h"
+#include "zcrypto/md5.h"
+#include "zcrypto/hash.h"
+#include "zcrypto/utils.h"
 
 static const uint32_t TT[] = {
     0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,

@@ -1,6 +1,6 @@
-#include "sha1.h"
-#include "hash.h"
-#include "utils.h"
+#include "zcrypto/sha1.h"
+#include "zcrypto/hash.h"
+#include "zcrypto/utils.h"
 
 static inline uint32_t _f0(uint32_t B, uint32_t C, uint32_t D) {
     return (B & C) | (~B & D);

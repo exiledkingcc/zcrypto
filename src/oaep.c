@@ -1,5 +1,5 @@
-#include "sha256.h"
-#include "oaep.h"
+#include "zcrypto/sha256.h"
+#include "zcrypto/oaep.h"
 
 static void bytes2num(uint32_t *num, const uint8_t *bytes, size_t len) {
     for (size_t j = 0; j < len; j += 4) {

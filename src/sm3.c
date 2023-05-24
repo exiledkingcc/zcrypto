@@ -1,6 +1,6 @@
-#include "sm3.h"
-#include "hash.h"
-#include "utils.h"
+#include "zcrypto/sm3.h"
+#include "zcrypto/hash.h"
+#include "zcrypto/utils.h"
 
 #define T0 0x79cc4519ul
 #define T1 0x7a879d8aul

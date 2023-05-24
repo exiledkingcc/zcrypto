@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "base64.h"
+#include "zcrypto/base64.h"
 
 static const uint8_t ASCII[] = {
     "ABCDEFGHIJKLMNOP"
