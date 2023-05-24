@@ -1,7 +1,10 @@
 # zcrypto
+
+**English** | [**中文**](./README.zh.md)
+
 a minimal crypto lib for limited environment like MCU.
 
-*features*:
+## features
 * base64
 * hash
     * SM3
@@ -18,23 +21,20 @@ a minimal crypto lib for limited environment like MCU.
     * OFB
 * asymmetric key encryption
     * RSA(2048)
+    * RSA-OAEP(2048)
 
 ## block cipher
-* crypto algorithm:
-    * AES(128, 192, 256)
-    * SM4
-* operation mode:
-    * ECB
-    * CBC
-    * CFB
-    * OFB
 
-api has two styles:
-* `aes_{keylen}_{mode}_{en/de}crypt` / `sm4_{mode}_{en/de}crypt`
-* `aes_{en/de}crypt(aes_ctx_t*, ...)` / `sm4_{en/de}crypt(sm4_ctx_t*, ...)`
+do encryption or decryption in once function call.
+* `aes_{keylen}_{mode}_{en/de}crypt`
+* `sm4_{mode}_{en/de}crypt`
 
-the first style api do **only once** encryption or decryption. but for the second style api,
-you can call `{aes/sm4}_{en/de}crypt` multiple times and to encryption(decryption) for stream data.
+or use context:
+* `aes_{en/de}crypt(aes_ctx_t*, ...)`
+* `sm4_{en/de}crypt(sm4_ctx_t*, ...)`
+
+you can call `{aes/sm4}_{en/de}crypt` multiple times
+to encrypt or decrypt for stream data.
 
 for both two style apis, you should do the padding yourself, and make sure the input data length
 **exactly** multiple of the block size (aka 16bytes).
