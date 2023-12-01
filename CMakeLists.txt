@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.16.0)
 project(zcrypto VERSION 0.1.0)
 
 include(CTest)
@@ -7,7 +7,7 @@ enable_testing()
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 17)
 
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
     # add_compile_options(/Wall /WX)
     add_compile_options(/bigobj /utf-8)
@@ -16,14 +16,13 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
 
 else ()
 
-    if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         add_compile_options (-fdiagnostics-color=always)
-    elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         add_compile_options (-fcolor-diagnostics)
     endif ()
 
 endif()
 
-include_directories(include)
 add_subdirectory(src)
 add_subdirectory(tests)

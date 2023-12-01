@@ -14,3 +14,4 @@ set(sources
 )
 
 add_library(zcrypto STATIC ${sources})
+target_include_directories(zcrypto PUBLIC ${PROJECT_SOURCE_DIR}/include)
