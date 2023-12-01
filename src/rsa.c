@@ -1,12 +1,12 @@
-#include <string.h>
 #include "zcrypto/rsa.h"
 #include "zcrypto/utils.h"
+#include <string.h>
 
 #define DEBUG_DUMP 0
 #if DEBUG_DUMP
 #include <stdio.h>
 
-static void _debug(const char *name, const uint32_t *data, size_t len) {
+static void _debug(const char* name, const uint32_t* data, size_t len) {
     static char text[RSA_BYTES * 2 + 2];
     for (size_t i = 0; i < len; ++i) {
         size_t j = (len - 1 - i) * 8;
@@ -37,9 +37,9 @@ typedef union {
         uint32_t high;
         uint32_t low;
 #else
-    #error Unknown endianness, please define __ZCRYPO_BYTE_ORDER__ to 1(little endian) or 2(big endian)
-    // #define __ZCRYPO_BYTE_ORDER__ 1
-    // #define __ZCRYPO_BYTE_ORDER__ 2
+#error Unknown endianness, please define __ZCRYPO_BYTE_ORDER__ to 1(little endian) or 2(big endian)
+        // #define __ZCRYPO_BYTE_ORDER__ 1
+        // #define __ZCRYPO_BYTE_ORDER__ 2
 #endif
     } u32;
 } uintz_t;
@@ -54,24 +54,23 @@ typedef union {
         int32_t high;
         uint32_t low;
 #else
-    #error Unknown endianness, please define __ZCRYPO_BYTE_ORDER__ to 1(little endian) or 2(big endian)
-    // #define __ZCRYPO_BYTE_ORDER__ 1
-    // #define __ZCRYPO_BYTE_ORDER__ 2
+#error Unknown endianness, please define __ZCRYPO_BYTE_ORDER__ to 1(little endian) or 2(big endian)
+        // #define __ZCRYPO_BYTE_ORDER__ 1
+        // #define __ZCRYPO_BYTE_ORDER__ 2
 #endif
     } i32;
 } intz_t;
 
-
-static inline void _zeros(uint32_t *X, size_t len) {
+static inline void _zeros(uint32_t* X, size_t len) {
     memset(X, 0, sizeof(uint32_t) * len);
 }
 
-static inline void _copy(uint32_t *dst, const uint32_t *src, size_t len) {
+static inline void _copy(uint32_t* dst, const uint32_t* src, size_t len) {
     memcpy(dst, src, sizeof(uint32_t) * len);
 }
 
 // X += Y;
-static void _add(uint32_t *X, const uint32_t *Y, size_t n) {
+static void _add(uint32_t* X, const uint32_t* Y, size_t n) {
     uintz_t c = {0};
     for (size_t i = 0; i < n; ++i) {
         c.u64 = (uint64_t)X[i] + Y[i] + c.u32.high;
@@ -83,7 +82,7 @@ static void _add(uint32_t *X, const uint32_t *Y, size_t n) {
 }
 
 // X -= Y;
-static void _sub(uint32_t *X, const uint32_t *Y, size_t n) {
+static void _sub(uint32_t* X, const uint32_t* Y, size_t n) {
     intz_t c = {0};
     for (size_t i = 0; i < n; ++i) {
         c.i64 = (int64_t)X[i] - Y[i] + c.i32.high;
@@ -95,7 +94,7 @@ static void _sub(uint32_t *X, const uint32_t *Y, size_t n) {
 }
 
 // X *= y
-static void _mul1(uint32_t *X, uint32_t y, size_t n) {
+static void _mul1(uint32_t* X, uint32_t y, size_t n) {
     uintz_t c = {0};
     for (size_t i = 0; i < n; ++i) {
         c.u64 = (uint64_t)X[i] * y + c.u32.high;
@@ -104,14 +103,14 @@ static void _mul1(uint32_t *X, uint32_t y, size_t n) {
     X[n] = c.u32.high;
 }
 
-static inline size_t _len(const uint32_t *X, size_t m) {
+static inline size_t _len(const uint32_t* X, size_t m) {
     while (m > 0 && X[m - 1] == 0) {
         --m;
     }
     return m;
 }
 
-static int _cmp(const uint32_t *X, const uint32_t *Y, size_t n) {
+static int _cmp(const uint32_t* X, const uint32_t* Y, size_t n) {
     for (size_t i = n - 1; i < n; --i) {
         uint32_t x = X[i];
         uint32_t y = Y[i];
@@ -125,14 +124,14 @@ static int _cmp(const uint32_t *X, const uint32_t *Y, size_t n) {
 }
 
 // X %= Y
-static void _mod(uint32_t *X, size_t m, const uint32_t *Y, size_t n) {
+static void _mod(uint32_t* X, size_t m, const uint32_t* Y, size_t n) {
     uint32_t dd[RSA_SIZE + 1];
     _zeros(dd, RSA_SIZE + 1);
 
     m = _len(X, m);
     n = _len(Y, n);
     uint64_t yy = ((uint64_t)Y[n - 1] << 32) + Y[n - 2];
-    uint32_t *px = X + m - n;
+    uint32_t* px = X + m - n;
     while (px >= X) {
         if (px[n] == 0 && _cmp(px, Y, n) < 0) {
             --px;
@@ -159,7 +158,7 @@ static void _mod(uint32_t *X, size_t m, const uint32_t *Y, size_t n) {
 }
 
 // X = A * R % C; R = (2^32) ^ RSA_SIZE
-static void _modx(uint32_t *X, const uint32_t *C, const uint32_t *A) {
+static void _modx(uint32_t* X, const uint32_t* C, const uint32_t* A) {
     uint32_t dd[RSA_SIZE * 2 + 1];
     _zeros(dd, RSA_SIZE * 2 + 1);
     _copy(dd + RSA_SIZE, A, RSA_SIZE);
@@ -172,7 +171,7 @@ static void _montgomery(uint32_t X[RSA_SIZE], const uint32_t C[RSA_SIZE], const 
     _zeros(tempx, RSA_SIZE * 2 + 2);
     uint32_t dd[RSA_SIZE + 1];
     _zeros(dd, RSA_SIZE + 1);
-    uint32_t *px = tempx;
+    uint32_t* px = tempx;
     _debug("A", A, RSA_SIZE);
     _debug("C", C, RSA_SIZE);
 
@@ -202,8 +201,8 @@ static void _montgomery(uint32_t X[RSA_SIZE], const uint32_t C[RSA_SIZE], const 
     _debug("X", X, RSA_SIZE);
 }
 
-static inline void _swap(uint32_t **px, uint32_t **py) {
-    uint32_t *pz = *px;
+static inline void _swap(uint32_t** px, uint32_t** py) {
+    uint32_t* pz = *px;
     *px = *py;
     *py = pz;
 }
@@ -242,7 +241,6 @@ static uint32_t _inv(uint32_t a) {
     return (uint32_t)t0;
 }
 
-
 static void _exp_mod(uint32_t X[RSA_SIZE], const uint32_t C[RSA_SIZE], const uint32_t A[RSA_SIZE], const uint32_t B[], int blen) {
     _debug("A", A, RSA_SIZE);
     _debug("C", C, RSA_SIZE);
@@ -251,11 +249,11 @@ static void _exp_mod(uint32_t X[RSA_SIZE], const uint32_t C[RSA_SIZE], const uin
     _debug("tempA", tempA, RSA_SIZE);
 
     uint32_t tempx[RSA_SIZE];
-    uint32_t *px = tempx;
+    uint32_t* px = tempx;
     _copy(px, tempA, RSA_SIZE);
 
     uint32_t tempy[RSA_SIZE];
-    uint32_t *py = tempy;
+    uint32_t* py = tempy;
     // _zeros(py, RSA_SIZE);
 
     uint32_t m = _inv(C[0]);
@@ -283,13 +281,13 @@ static void _exp_mod(uint32_t X[RSA_SIZE], const uint32_t C[RSA_SIZE], const uin
     _montgomery(X, C, px, py, m);
 }
 
-void rsa_pub_naive(const rsa_ctx_t *ctx, const uint32_t data[RSA_SIZE], uint32_t output[RSA_SIZE]) {
+void rsa_pub_naive(const rsa_ctx_t* ctx, const uint32_t data[RSA_SIZE], uint32_t output[RSA_SIZE]) {
     uint32_t B[1] = {ctx->E};
     _exp_mod(output, ctx->N, data, B, 1);
 }
 
 #if ENABLE_RSA_PRIVATE_KEY
-void rsa_pri_naive(const rsa_ctx_t *ctx, const uint32_t data[RSA_SIZE], uint32_t output[RSA_SIZE]) {
+void rsa_pri_naive(const rsa_ctx_t* ctx, const uint32_t data[RSA_SIZE], uint32_t output[RSA_SIZE]) {
     _exp_mod(output, ctx->N, data, ctx->D, RSA_SIZE);
 }
 #endif

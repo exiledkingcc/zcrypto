@@ -29,30 +29,29 @@ static inline uint32_t _gg1(uint32_t x, uint32_t y, uint32_t z) {
     return (x & y) | ((~x) & z);
 }
 
-#define CF(A, B, C, D, E, F, G, H, TT, FF, GG, i) \
-do { \
-    uint32_t SS1 = _lshift(_lshift(A, 12) + E + _lshift(TT, i % 32), 7); \
-    uint32_t SS2 = SS1 ^ _lshift(A, 12); \
-    uint32_t TT1 = FF(A, B, C) + D + SS2 + (W[i] ^ W[i + 4]);  /* W'(j) = W(j) ^ W(j + 4) */ \
-    uint32_t TT2 = GG(E, F, G) + H + SS1 + W[i]; \
-    D = C; \
-    C = _lshift(B, 9); \
-    B = A; \
-    A = TT1; \
-    H = G; \
-    G = _lshift(F, 19); \
-    F = E; \
-    E = _p0(TT2); \
-} while (0)
-
+#define CF(A, B, C, D, E, F, G, H, TT, FF, GG, i)                                               \
+    do {                                                                                        \
+        uint32_t SS1 = _lshift(_lshift(A, 12) + E + _lshift(TT, i % 32), 7);                    \
+        uint32_t SS2 = SS1 ^ _lshift(A, 12);                                                    \
+        uint32_t TT1 = FF(A, B, C) + D + SS2 + (W[i] ^ W[i + 4]); /* W'(j) = W(j) ^ W(j + 4) */ \
+        uint32_t TT2 = GG(E, F, G) + H + SS1 + W[i];                                            \
+        D = C;                                                                                  \
+        C = _lshift(B, 9);                                                                      \
+        B = A;                                                                                  \
+        A = TT1;                                                                                \
+        H = G;                                                                                  \
+        G = _lshift(F, 19);                                                                     \
+        F = E;                                                                                  \
+        E = _p0(TT2);                                                                           \
+    } while (0)
 
 void sm3_blk_update(uint32_t hash[8], const uint8_t data[64]) {
     uint32_t W[68];
     for (int i = 0; i < 16; ++i) {
-        W[i] = _load_be_u32(data + i * 4);
+        W[i] = _z_load_be_u32(data + i * 4);
     }
     for (int i = 16; i < 68; ++i) {
-        W[i] = _p1(W[i - 16] ^ W[i - 9] ^ _lshift(W[i - 3] , 15)) ^ _lshift(W[i - 13], 7) ^ W[i -6];
+        W[i] = _p1(W[i - 16] ^ W[i - 9] ^ _lshift(W[i - 3], 15)) ^ _lshift(W[i - 13], 7) ^ W[i - 6];
     }
 
     uint32_t A = hash[0];
@@ -90,24 +89,23 @@ void sm3_hash_init(uint32_t hash[8]) {
     hash[7] = 0xb0fb0e4eul;
 }
 
-
-void sm3_init(sm3_ctx_t *ctx) {
+void sm3_init(sm3_ctx_t* ctx) {
     memset(ctx, 0, sizeof(sm3_ctx_t));
     sm3_hash_init(ctx->hash);
 }
 
-void sm3_update(sm3_ctx_t *ctx, const uint8_t *data, size_t len) {
+void sm3_update(sm3_ctx_t* ctx, const uint8_t* data, size_t len) {
     _hash_update(sm3_blk_update, ctx->hash, ctx->blk, data, len, &ctx->len);
 }
 
-void sm3_digest(sm3_ctx_t *ctx, uint8_t *data) {
+void sm3_digest(sm3_ctx_t* ctx, uint8_t* data) {
     uint32_t hash[8];
     memcpy(hash, ctx->hash, 32);
     _hash_done(sm3_blk_update, hash, ctx->blk, ctx->len, false);
     _hash_digest(be, hash, 8, data);
 }
 
-void sm3_hexdigest(sm3_ctx_t *ctx, uint8_t *data) {
+void sm3_hexdigest(sm3_ctx_t* ctx, uint8_t* data) {
     sm3_digest(ctx, data);
     _expand_hex(data, 32);
 }

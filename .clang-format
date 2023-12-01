@@ -1,0 +1,21 @@
+---
+Standard: c++20
+Language: Cpp
+BasedOnStyle: LLVM
+ColumnLimit: 200
+IndentWidth: 4
+TabWidth: 4
+AccessModifierOffset: -4
+InsertBraces: true
+Cpp11BracedListStyle: true
+AllowShortBlocksOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: Empty
+PointerAlignment: Left
+DerivePointerAlignment: false
+IncludeBlocks: Preserve
+AlwaysBreakTemplateDeclarations: Yes
+AlignAfterOpenBracket: BlockIndent
+AlignEscapedNewlines: Left
+PackConstructorInitializers: CurrentLine
+AllowAllArgumentsOnNextLine: true
+BinPackArguments: true

@@ -1,8 +1,8 @@
-#include <assert.h>
 #include "zcrypto/hash.h"
 #include "zcrypto/utils.h"
+#include <assert.h>
 
-void _hash_update(hash_blk_update_func blk_update, uint32_t *hash, uint8_t *blk, const uint8_t *data, size_t len, uint64_t *total) {
+void _hash_update(hash_blk_update_func blk_update, uint32_t* hash, uint8_t* blk, const uint8_t* data, size_t len, uint64_t* total) {
     size_t offset = *total % HASH_BLK_SIZE;
     if (offset + len < HASH_BLK_SIZE) {
         memcpy(blk + offset, data, len);
@@ -10,8 +10,8 @@ void _hash_update(hash_blk_update_func blk_update, uint32_t *hash, uint8_t *blk,
         return;
     }
 
-    const uint8_t *end = data + len;
-    const uint8_t *p   = data;
+    const uint8_t* end = data + len;
+    const uint8_t* p = data;
     if (offset != 0) {
         memcpy(blk + offset, p, HASH_BLK_SIZE - offset);
         blk_update(hash, blk);
@@ -36,7 +36,7 @@ static void hash_store_len(uint64_t len, uint8_t data[8], bool le) {
     }
 }
 
-void _hash_done(hash_blk_update_func blk_update, uint32_t *hash, const uint8_t *data, uint64_t total, bool le) {
+void _hash_done(hash_blk_update_func blk_update, uint32_t* hash, const uint8_t* data, uint64_t total, bool le) {
     uint8_t blk[HASH_BLK_SIZE];
     memset(blk, 0, HASH_BLK_SIZE);
     size_t len = total % HASH_BLK_SIZE;

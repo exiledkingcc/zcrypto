@@ -2,10 +2,12 @@
 #include "zcrypto/utils.h"
 
 static const uint8_t RCBOX[11] = {
-    0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36
+    0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36,
+
 };
 
 static const uint8_t SBOX[16][16] = {
+    // clang-format off
     {0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76},
     {0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0},
     {0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15},
@@ -22,9 +24,11 @@ static const uint8_t SBOX[16][16] = {
     {0x70, 0x3e, 0xb5, 0x66, 0x48, 0x03, 0xf6, 0x0e, 0x61, 0x35, 0x57, 0xb9, 0x86, 0xc1, 0x1d, 0x9e},
     {0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf},
     {0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16},
+    // clang-format on
 };
 
 static const uint8_t INV_SBOX[16][16] = {
+    // clang-format off
     {0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb},
     {0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb},
     {0x54, 0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e},
@@ -41,10 +45,11 @@ static const uint8_t INV_SBOX[16][16] = {
     {0x60, 0x51, 0x7f, 0xa9, 0x19, 0xb5, 0x4a, 0x0d, 0x2d, 0xe5, 0x7a, 0x9f, 0x93, 0xc9, 0x9c, 0xef},
     {0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61},
     {0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d},
+    // clang-format on
 };
 
 static inline uint32_t _rot_word(uint32_t x) {
-    uint8_t *y = (uint8_t*)&x;
+    uint8_t* y = (uint8_t*)&x;
     uint8_t t = y[0];
     y[0] = y[1];
     y[1] = y[2];
@@ -54,7 +59,7 @@ static inline uint32_t _rot_word(uint32_t x) {
 }
 
 static inline uint32_t _sub_word(uint32_t x) {
-    uint8_t *y = (uint8_t*)&x;
+    uint8_t* y = (uint8_t*)&x;
     y[0] = SBOX[y[0] >> 8][y[0] & 0xff];
     y[1] = SBOX[y[1] >> 8][y[1] & 0xff];
     y[2] = SBOX[y[2] >> 8][y[2] & 0xff];
@@ -62,7 +67,7 @@ static inline uint32_t _sub_word(uint32_t x) {
     return *(uint32_t*)y;
 }
 
-static void aes_set_key(const uint8_t *key, size_t keylen, int round, uint32_t *rkey) {
+static void aes_set_key(const uint8_t* key, size_t keylen, int round, uint32_t* rkey) {
     memcpy(rkey, key, keylen);
     size_t kn = keylen / 4;
     for (size_t r = kn; r < (size_t)(round + 1) * 4; ++r) {
@@ -78,8 +83,8 @@ static void aes_set_key(const uint8_t *key, size_t keylen, int round, uint32_t *
     }
 }
 
-static void add_round_key(uint8_t dst[16], const uint32_t *rkey) {
-    uint32_t *y = (uint32_t*)dst;
+static void add_round_key(uint8_t dst[16], const uint32_t* rkey) {
+    uint32_t* y = (uint32_t*)dst;
     y[0] ^= rkey[0];
     y[1] ^= rkey[1];
     y[2] ^= rkey[2];
@@ -119,7 +124,6 @@ static void inv_shift_rows(uint8_t blk[16]) {
         blk[i + 12] = tt[(7 - i) % 4];
     }
 }
-
 
 // static uint8_t _gmul(uint8_t v, uint8_t n) {
 //     uint8_t p = 0;
@@ -161,8 +165,8 @@ static void mix_columns(uint8_t blk[16]) {
     //    = _gmul(x0, 2) ^ _gmul(x1, 2) ^ x1 ^ x2 ^ x3;
     //    = _gmul(x0, 2) ^ _gmul(x1, 2) ^ (x1 ^ x2 ^ x3 ^ x0) ^ x0;
 
-    for (int r = 0; r < 4; ++ r) {
-        uint8_t *x = blk + r * 4;
+    for (int r = 0; r < 4; ++r) {
+        uint8_t* x = blk + r * 4;
         uint8_t g2[4] = {
             _gmul2(x[0]),
             _gmul2(x[1]),
@@ -190,8 +194,8 @@ static void inv_mix_columns(uint8_t blk[16]) {
     //    = _gmul2(_gmul2(_gmul2(x0) ^ _gmul2(x1) ^ _gmul2(x2) ^ _gmul2(x3))) ^ _gmul2(_gmul2(x0) ^ _gmul2(x2)) ^ _gmul2(x0) ^ _gmul2(x1) ^ x1 ^ x2 ^ x3;
     //    = _gmul2(_gmul2(....)) ^ _gmul2(_gmul2(x0) ^ _gmul2(x2)) ^ _gmul2(x0) ^ _gmul2(x1) ^ (x1 ^ x2 ^ x3 ^ x0) ^ x0;
 
-    for (int r = 0; r < 4; ++ r) {
-        uint8_t *x = blk + r * 4;
+    for (int r = 0; r < 4; ++r) {
+        uint8_t* x = blk + r * 4;
         uint8_t g2[4] = {
             _gmul2(x[0]),
             _gmul2(x[1]),
@@ -207,7 +211,7 @@ static void inv_mix_columns(uint8_t blk[16]) {
     }
 }
 
-void aes_blk_encrypt(const uint32_t *rkey, int round, const uint8_t in[16], uint8_t out[16]) {
+void aes_blk_encrypt(const uint32_t* rkey, int round, const uint8_t in[16], uint8_t out[16]) {
     memcpy(out, in, 16);
 
     add_round_key(out, rkey);
@@ -223,7 +227,7 @@ void aes_blk_encrypt(const uint32_t *rkey, int round, const uint8_t in[16], uint
     add_round_key(out, rkey + 4 * round);
 }
 
-void aes_blk_decrypt(const uint32_t *rkey, int round, const uint8_t in[16], uint8_t out[16]) {
+void aes_blk_decrypt(const uint32_t* rkey, int round, const uint8_t in[16], uint8_t out[16]) {
     memcpy(out, in, 16);
 
     add_round_key(out, rkey + 4 * round);
@@ -239,16 +243,15 @@ void aes_blk_decrypt(const uint32_t *rkey, int round, const uint8_t in[16], uint
     add_round_key(out, rkey);
 }
 
-
 typedef void (*block_func_t)(const uint32_t*, int, const uint8_t*, uint8_t*);
 
-static inline void _ecb(block_func_t blk_func, const uint32_t *rkey, int rd, size_t len, const uint8_t *in, uint8_t *out) {
+static inline void _ecb(block_func_t blk_func, const uint32_t* rkey, int rd, size_t len, const uint8_t* in, uint8_t* out) {
     for (size_t i = 0; i < len; i += 16) {
         blk_func(rkey, rd, in + i, out + i);
     }
 }
 
-static inline void _cbc_encrypt(const uint32_t *rkey, int rd, uint8_t *iv, size_t len, const uint8_t *plain, uint8_t *cipher) {
+static inline void _cbc_encrypt(const uint32_t* rkey, int rd, uint8_t* iv, size_t len, const uint8_t* plain, uint8_t* cipher) {
     for (size_t i = 0; i < len; i += 16) {
         _xor_block(iv, plain + i, 16);
         aes_blk_encrypt(rkey, rd, iv, cipher + i);
@@ -256,7 +259,7 @@ static inline void _cbc_encrypt(const uint32_t *rkey, int rd, uint8_t *iv, size_
     }
 }
 
-static inline void _cbc_decrypt(const uint32_t *rkey, int rd, uint8_t *iv, size_t len, const uint8_t *cipher, uint8_t *plain) {
+static inline void _cbc_decrypt(const uint32_t* rkey, int rd, uint8_t* iv, size_t len, const uint8_t* cipher, uint8_t* plain) {
     for (size_t i = 0; i < len; i += 16) {
         aes_blk_decrypt(rkey, rd, cipher + i, plain + i);
         _xor_block(plain + i, iv, 16);
@@ -264,7 +267,7 @@ static inline void _cbc_decrypt(const uint32_t *rkey, int rd, uint8_t *iv, size_
     }
 }
 
-static inline void _cfb_encrypt(const uint32_t *rkey, int rd, uint8_t *iv, size_t len, const uint8_t *plain, uint8_t *cipher) {
+static inline void _cfb_encrypt(const uint32_t* rkey, int rd, uint8_t* iv, size_t len, const uint8_t* plain, uint8_t* cipher) {
     for (size_t i = 0; i < len; i += 16) {
         aes_blk_encrypt(rkey, rd, iv, cipher + i);
         _xor_block(cipher + i, plain + i, 16);
@@ -272,7 +275,7 @@ static inline void _cfb_encrypt(const uint32_t *rkey, int rd, uint8_t *iv, size_
     }
 }
 
-static inline void _cfb_decrypt(const uint32_t *rkey, int rd, uint8_t *iv, size_t len, const uint8_t *cipher, uint8_t *plain) {
+static inline void _cfb_decrypt(const uint32_t* rkey, int rd, uint8_t* iv, size_t len, const uint8_t* cipher, uint8_t* plain) {
     for (size_t i = 0; i < len; i += 16) {
         aes_blk_encrypt(rkey, rd, iv, plain + i);
         _xor_block(plain + i, cipher + i, 16);
@@ -280,7 +283,7 @@ static inline void _cfb_decrypt(const uint32_t *rkey, int rd, uint8_t *iv, size_
     }
 }
 
-static inline void _ofb(const uint32_t *rkey, int rd, uint8_t *iv, size_t len, const uint8_t *in, uint8_t *out) {
+static inline void _ofb(const uint32_t* rkey, int rd, uint8_t* iv, size_t len, const uint8_t* in, uint8_t* out) {
     for (size_t i = 0; i < len; i += 16) {
         aes_blk_encrypt(rkey, rd, iv, out + i);
         memcpy(iv, out + i, 16);
@@ -288,81 +291,77 @@ static inline void _ofb(const uint32_t *rkey, int rd, uint8_t *iv, size_t len, c
     }
 }
 
-
-#define AES_DEF_ECB(KEY, RN) \
-void aes_ ## KEY ## _ecb_encrypt(const uint8_t *key, size_t len, const uint8_t *plain, uint8_t *cipher) { \
-    uint32_t rkey[RN * 4 + 4]; \
-    aes_set_key(key, KEY / 8, RN, rkey); \
-    _ecb(aes_blk_encrypt, rkey, RN, len, plain, cipher); \
-} \
-\
-void aes_ ## KEY ## _ecb_decrypt(const uint8_t *key, size_t len, const uint8_t *cipher, uint8_t *plain) { \
-    uint32_t rkey[RN * 4 + 4]; \
-    aes_set_key(key, KEY / 8, RN, rkey); \
-    _ecb(aes_blk_decrypt, rkey, RN, len, cipher, plain); \
-}
+#define AES_DEF_ECB(KEY, RN)                                                                              \
+    void aes_##KEY##_ecb_encrypt(const uint8_t* key, size_t len, const uint8_t* plain, uint8_t* cipher) { \
+        uint32_t rkey[RN * 4 + 4];                                                                        \
+        aes_set_key(key, KEY / 8, RN, rkey);                                                              \
+        _ecb(aes_blk_encrypt, rkey, RN, len, plain, cipher);                                              \
+    }                                                                                                     \
+                                                                                                          \
+    void aes_##KEY##_ecb_decrypt(const uint8_t* key, size_t len, const uint8_t* cipher, uint8_t* plain) { \
+        uint32_t rkey[RN * 4 + 4];                                                                        \
+        aes_set_key(key, KEY / 8, RN, rkey);                                                              \
+        _ecb(aes_blk_decrypt, rkey, RN, len, cipher, plain);                                              \
+    }
 
 AES_DEF_ECB(128, 10)
 AES_DEF_ECB(192, 12)
 AES_DEF_ECB(256, 14)
 
-
-#define AES_DEF_CBC(KEY, RN) \
-void aes_ ## KEY ## _cbc_encrypt(const uint8_t *key, const uint8_t *iv, size_t len, const uint8_t *plain, uint8_t *cipher) { \
-    uint32_t rkey[RN * 4 + 4]; \
-    aes_set_key(key, KEY / 8, RN, rkey); \
-    uint8_t out[16]; \
-    memcpy(out, iv, 16); \
-    _cbc_encrypt(rkey, RN, out, len, plain, cipher); \
-} \
-\
-void aes_ ## KEY ## _cbc_decrypt(const uint8_t *key, const uint8_t *iv, size_t len, const uint8_t *cipher, uint8_t *plain) { \
-    uint32_t rkey[RN * 4 + 4]; \
-    aes_set_key(key, KEY / 8, RN, rkey); \
-    uint8_t out[16]; \
-    memcpy(out, iv, 16); \
-    _cbc_decrypt(rkey, RN, out, len, cipher, plain); \
-}
+#define AES_DEF_CBC(KEY, RN)                                                                                                 \
+    void aes_##KEY##_cbc_encrypt(const uint8_t* key, const uint8_t* iv, size_t len, const uint8_t* plain, uint8_t* cipher) { \
+        uint32_t rkey[RN * 4 + 4];                                                                                           \
+        aes_set_key(key, KEY / 8, RN, rkey);                                                                                 \
+        uint8_t out[16];                                                                                                     \
+        memcpy(out, iv, 16);                                                                                                 \
+        _cbc_encrypt(rkey, RN, out, len, plain, cipher);                                                                     \
+    }                                                                                                                        \
+                                                                                                                             \
+    void aes_##KEY##_cbc_decrypt(const uint8_t* key, const uint8_t* iv, size_t len, const uint8_t* cipher, uint8_t* plain) { \
+        uint32_t rkey[RN * 4 + 4];                                                                                           \
+        aes_set_key(key, KEY / 8, RN, rkey);                                                                                 \
+        uint8_t out[16];                                                                                                     \
+        memcpy(out, iv, 16);                                                                                                 \
+        _cbc_decrypt(rkey, RN, out, len, cipher, plain);                                                                     \
+    }
 
 AES_DEF_CBC(128, 10)
 AES_DEF_CBC(192, 12)
 AES_DEF_CBC(256, 14)
 
-
-#define AES_DEF_CFB(KEY, RN) \
-void aes_ ## KEY ## _cfb_encrypt(const uint8_t *key, const uint8_t *iv, size_t len, const uint8_t *plain, uint8_t *cipher) { \
-    uint32_t rkey[RN * 4 + 4]; \
-    aes_set_key(key, KEY / 8, RN, rkey); \
-    uint8_t out[16]; \
-    memcpy(out, iv, 16); \
-    _cfb_encrypt(rkey, RN, out, len, plain, cipher); \
-} \
-\
-void aes_ ## KEY ## _cfb_decrypt(const uint8_t *key, const uint8_t *iv, size_t len, const uint8_t *cipher, uint8_t *plain) { \
-    uint32_t rkey[RN * 4 + 4]; \
-    aes_set_key(key, KEY / 8, RN, rkey); \
-    uint8_t out[16]; \
-    memcpy(out, iv, 16); \
-    _cfb_decrypt(rkey, RN, out, len, cipher, plain); \
-}
+#define AES_DEF_CFB(KEY, RN)                                                                                                 \
+    void aes_##KEY##_cfb_encrypt(const uint8_t* key, const uint8_t* iv, size_t len, const uint8_t* plain, uint8_t* cipher) { \
+        uint32_t rkey[RN * 4 + 4];                                                                                           \
+        aes_set_key(key, KEY / 8, RN, rkey);                                                                                 \
+        uint8_t out[16];                                                                                                     \
+        memcpy(out, iv, 16);                                                                                                 \
+        _cfb_encrypt(rkey, RN, out, len, plain, cipher);                                                                     \
+    }                                                                                                                        \
+                                                                                                                             \
+    void aes_##KEY##_cfb_decrypt(const uint8_t* key, const uint8_t* iv, size_t len, const uint8_t* cipher, uint8_t* plain) { \
+        uint32_t rkey[RN * 4 + 4];                                                                                           \
+        aes_set_key(key, KEY / 8, RN, rkey);                                                                                 \
+        uint8_t out[16];                                                                                                     \
+        memcpy(out, iv, 16);                                                                                                 \
+        _cfb_decrypt(rkey, RN, out, len, cipher, plain);                                                                     \
+    }
 
 AES_DEF_CFB(128, 10)
 AES_DEF_CFB(192, 12)
 AES_DEF_CFB(256, 14)
 
-
-#define AES_DEF_OFB(KEY, RN) \
-void aes_ ## KEY ## _ofb_encrypt(const uint8_t *key, const uint8_t *iv, size_t len, const uint8_t *plain, uint8_t *cipher) { \
-    uint32_t rkey[RN * 4 + 4]; \
-    aes_set_key(key, KEY / 8, RN, rkey); \
-    uint8_t out[16]; \
-    memcpy(out, iv, 16); \
-    _ofb(rkey, RN, out, len, plain, cipher); \
-} \
-\
-void aes_ ## KEY ## _ofb_decrypt(const uint8_t *key, const uint8_t *iv, size_t len, const uint8_t *cipher, uint8_t *plain) { \
-    aes_ ## KEY ## _ofb_encrypt(key, iv, len, cipher, plain); \
-}
+#define AES_DEF_OFB(KEY, RN)                                                                                                 \
+    void aes_##KEY##_ofb_encrypt(const uint8_t* key, const uint8_t* iv, size_t len, const uint8_t* plain, uint8_t* cipher) { \
+        uint32_t rkey[RN * 4 + 4];                                                                                           \
+        aes_set_key(key, KEY / 8, RN, rkey);                                                                                 \
+        uint8_t out[16];                                                                                                     \
+        memcpy(out, iv, 16);                                                                                                 \
+        _ofb(rkey, RN, out, len, plain, cipher);                                                                             \
+    }                                                                                                                        \
+                                                                                                                             \
+    void aes_##KEY##_ofb_decrypt(const uint8_t* key, const uint8_t* iv, size_t len, const uint8_t* cipher, uint8_t* plain) { \
+        aes_##KEY##_ofb_encrypt(key, iv, len, cipher, plain);                                                                \
+    }
 
 AES_DEF_OFB(128, 10)
 AES_DEF_OFB(192, 12)
@@ -373,7 +372,6 @@ static inline int _get_round(size_t keylen) {
     return rr[keylen / 64 - 2];
 }
 
-
 #define AES_ENCRYPT 0x10
 #define AES_DECRYPT 0x20
 
@@ -381,11 +379,11 @@ static inline int _round(size_t keylen) {
     return keylen / 32 + 6;
 }
 
-void aes_close(aes_ctx_t *ctx) {
+void aes_close(aes_ctx_t* ctx) {
     memset(ctx, 0, sizeof(aes_ctx_t));
 }
 
-int aes_init(aes_ctx_t *ctx, uint8_t mode, size_t keylen, const uint8_t *key, const uint8_t iv[16]) {
+int aes_init(aes_ctx_t* ctx, uint8_t mode, size_t keylen, const uint8_t* key, const uint8_t iv[16]) {
     if (keylen != 128 && keylen != 192 && keylen != 256) {
         return -1;
     }
@@ -409,7 +407,7 @@ int aes_init(aes_ctx_t *ctx, uint8_t mode, size_t keylen, const uint8_t *key, co
     return 0;
 }
 
-int aes_encrypt(aes_ctx_t *ctx, size_t len, const uint8_t *plain, uint8_t *cipher) {
+int aes_encrypt(aes_ctx_t* ctx, size_t len, const uint8_t* plain, uint8_t* cipher) {
     if ((ctx->mode & 0xf0) == 0) {
         ctx->mode |= AES_ENCRYPT;
     }
@@ -433,7 +431,7 @@ int aes_encrypt(aes_ctx_t *ctx, size_t len, const uint8_t *plain, uint8_t *ciphe
     return 0;
 }
 
-int aes_decrypt(aes_ctx_t *ctx, size_t len, const uint8_t *cipher, uint8_t *plain) {
+int aes_decrypt(aes_ctx_t* ctx, size_t len, const uint8_t* cipher, uint8_t* plain) {
     if ((ctx->mode & 0xf0) == 0) {
         ctx->mode |= AES_DECRYPT;
     }

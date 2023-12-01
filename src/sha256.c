@@ -27,6 +27,7 @@ static inline uint32_t SSIG1(uint32_t X) {
 }
 
 static const uint32_t K[] = {
+    // clang-format off
     0x428a2f98ul, 0x71374491ul, 0xb5c0fbcful, 0xe9b5dba5ul,
     0x3956c25bul, 0x59f111f1ul, 0x923f82a4ul, 0xab1c5ed5ul,
     0xd807aa98ul, 0x12835b01ul, 0x243185beul, 0x550c7dc3ul,
@@ -43,12 +44,13 @@ static const uint32_t K[] = {
     0x391c0cb3ul, 0x4ed8aa4aul, 0x5b9cca4ful, 0x682e6ff3ul,
     0x748f82eeul, 0x78a5636ful, 0x84c87814ul, 0x8cc70208ul,
     0x90befffaul, 0xa4506cebul, 0xbef9a3f7ul, 0xc67178f2ul,
+    // clang-format on
 };
 
 void sha256_blk_update(uint32_t hash[8], const uint8_t data[64]) {
     uint32_t W[64];
     for (int i = 0; i < 16; ++i) {
-        W[i] = _load_be_u32(data + i * 4);
+        W[i] = _z_load_be_u32(data + i * 4);
     }
     for (int i = 16; i < 64; ++i) {
         W[i] = SSIG1(W[i - 2]) + W[i - 7] + SSIG0(W[i - 15]) + W[i - 16];
@@ -96,24 +98,23 @@ void sha256_hash_init(uint32_t hash[8]) {
     hash[7] = 0x5be0cd19ul;
 }
 
-
-void sha256_init(sha256_ctx_t *ctx) {
+void sha256_init(sha256_ctx_t* ctx) {
     memset(ctx, 0, sizeof(sha256_ctx_t));
     sha256_hash_init(ctx->hash);
 }
 
-void sha256_update(sha256_ctx_t *ctx, const uint8_t *data, size_t len) {
+void sha256_update(sha256_ctx_t* ctx, const uint8_t* data, size_t len) {
     _hash_update(sha256_blk_update, ctx->hash, ctx->blk, data, len, &ctx->len);
 }
 
-void sha256_digest(sha256_ctx_t *ctx, uint8_t *data) {
+void sha256_digest(sha256_ctx_t* ctx, uint8_t* data) {
     uint32_t hash[8];
     memcpy(hash, ctx->hash, 32);
     _hash_done(sha256_blk_update, hash, ctx->blk, ctx->len, false);
     _hash_digest(be, hash, 8, data);
 }
 
-void sha256_hexdigest(sha256_ctx_t *ctx, uint8_t *data) {
+void sha256_hexdigest(sha256_ctx_t* ctx, uint8_t* data) {
     sha256_digest(ctx, data);
     _expand_hex(data, 32);
 }
