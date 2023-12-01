@@ -1,6 +1,26 @@
+/*
+Copyright (C) 2020-2023 exiledkingcc@gmail.com
+
+This file is part of zcrypto.
+
+zcrypto is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3, or (at your option) any later
+version.
+
+zcrypto is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with zcrypto; see the file LICENSE.  If not see
+<http://www.gnu.org/licenses/>.
+*/
+
+#include "zcrypto/base64.h"
 #include <stdint.h>
 #include <stdio.h>
-#include "zcrypto/base64.h"
 
 static inline uint8_t hex2num(char c) {
     if (c >= 'a') {
@@ -10,19 +30,19 @@ static inline uint8_t hex2num(char c) {
     }
 }
 
-static size_t hex_decode(const char *text, uint8_t *bin) {
-    const char *p = text;
-    uint8_t *bb   = bin;
+static size_t hex_decode(const char* text, uint8_t* bin) {
+    const char* p = text;
+    uint8_t* bb = bin;
     do {
         uint8_t x = hex2num(*p++);
         uint8_t y = hex2num(*p++);
-        *bb++     = (uint8_t)((x << 4) | y);
+        *bb++ = (uint8_t)((x << 4) | y);
     } while (*p != '\n');
     return (size_t)(bb - bin);
 }
 
 #define NUM 1000
-char line[NUM * 2 + 8];  // reserve space for prefix and tail '\n\0'
+char line[NUM * 2 + 8]; // reserve space for prefix and tail '\n\0'
 uint8_t binary[NUM + 4];
 uint8_t binary2[NUM + 4];
 uint8_t text[NUM * 4 / 3 + 8];
@@ -43,7 +63,7 @@ int main() {
             xl2 = base64_encode(binary, xl1, text);
         } else if (line[0] == 'B') {
             size_t x = strlen(line);
-            x -= 3;  // remove head 'B ' and tail '\n'
+            x -= 3; // remove head 'B ' and tail '\n'
             if (x != xl2) {
                 err1 += 1;
                 continue;

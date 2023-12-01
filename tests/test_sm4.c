@@ -1,7 +1,27 @@
-#include <stdio.h>
-#include "zcrypto/sm4.h"
+/*
+Copyright (C) 2020-2023 exiledkingcc@gmail.com
 
-static void expect_equal(const char *name, const uint8_t *a, const uint8_t *b, size_t len) {
+This file is part of zcrypto.
+
+zcrypto is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3, or (at your option) any later
+version.
+
+zcrypto is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with zcrypto; see the file LICENSE.  If not see
+<http://www.gnu.org/licenses/>.
+*/
+
+#include "zcrypto/sm4.h"
+#include <stdio.h>
+
+static void expect_equal(const char* name, const uint8_t* a, const uint8_t* b, size_t len) {
     if (memcmp(a, b, len) == 0) {
         printf("%s OK!\n", name);
     } else {
@@ -62,7 +82,7 @@ static void sm4_ctx_test(int mode, const char* name) {
     memset(p2, 0, 32);
     memset(c1, 0, 32);
 
-    const uint8_t *iv = NULL;
+    const uint8_t* iv = NULL;
     if (mode != SM4_ECB_MODE) {
         iv = key;
     }
@@ -102,5 +122,4 @@ int main() {
     sm4_ctx_test(SM4_CBC_MODE, "SM4_CBC_MODE");
     sm4_ctx_test(SM4_CFB_MODE, "SM4_CFB_MODE");
     sm4_ctx_test(SM4_OFB_MODE, "SM4_OFB_MODE");
-
 }
